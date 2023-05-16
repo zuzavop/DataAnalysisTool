@@ -1,4 +1,6 @@
-﻿namespace DataAnalysisTool
+﻿using Newtonsoft.Json;
+
+namespace DataAnalysisTool
 {
     interface IDataImporter
     {
@@ -27,20 +29,64 @@
                     ImportJSONData(filePath, dataset);
                     break;
                 default:
-                    throw new NotSupportedException("File format not supported.");
+                    throw new NotSupportedException($"Data import from file format '{fileExtension}' is not supported.");
             }
 
             return dataset;
         }
 
-        private void ImportCSVData(string filePath, Dataset dataset)
+        private static void ImportCSVData(string filePath, Dataset dataset)
         {
+            try
+            {
+                using var reader = new StreamReader(filePath);
+                string[]? headers = reader.ReadLine()?.Split(',');
 
+                while (!reader.EndOfStream)
+                {
+                    string[]? values = reader.ReadLine()?.Split(',');
+
+                    if (values?.Length != headers?.Length)
+                    {
+                        Console.WriteLine("Invalid data format. Skipping row.");
+                        continue;
+                    }
+
+                    DataObject dataObject = new DataObject();
+
+                    for (int i = 0; i < headers?.Length; i++)
+                    {
+                        string column = headers[i];
+                        string? value = values?[i];
+
+                        dataObject.AddColumnValue(column, value);
+                    }
+
+                    dataset.Add(dataObject);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error importing CSV data: {ex.Message}");
+            }
         }
 
-        private void ImportJSONData(string filePath, Dataset dataset)
+        private static void ImportJSONData(string filePath, Dataset dataset)
         {
+            try
+            {
+                string jsonContent = File.ReadAllText(filePath);
+                DataObject[]? dataObjects = JsonConvert.DeserializeObject<DataObject[]>(jsonContent);
 
+                foreach (DataObject dataObject in dataObjects)
+                {
+                    dataset.Add(dataObject);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error importing JSON data: {ex.Message}");
+            }
         }
     }
 }

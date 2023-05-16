@@ -2,12 +2,12 @@
 {
     class DataAnalyzer
     {
-        IDataImporter dataImporter;
-        IDataExporter dataExporter;
-        IDataProcessor dataProcessor;
-        IDataVisualizer dataVisualizer;
-        IDatasetExplorer datasetExplorer;
-        Dataset inputDataset;
+        readonly IDataImporter dataImporter;
+        readonly IDataExporter dataExporter;
+        readonly IDataProcessor dataProcessor;
+        readonly IDataVisualizer dataVisualizer;
+        readonly IDatasetExplorer datasetExplorer;
+        readonly Dataset inputDataset;
 
         public DataAnalyzer(string[] args)
         {
@@ -32,6 +32,7 @@
                 if (command.StartsWith("analyze "))
                 {
                     string column = command.Substring(8).Trim();
+                    datasetExplorer.AnalyzeColumn(column);
                 }
                 else if (command == "explore")
                 {

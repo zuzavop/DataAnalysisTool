@@ -1,4 +1,8 @@
-﻿namespace DataAnalysisTool
+﻿using CsvHelper;
+using Newtonsoft.Json;
+using System.Globalization;
+
+namespace DataAnalysisTool
 {
     interface IDataExporter
     {
@@ -6,7 +10,7 @@
     }
     class DataExporter : IDataExporter
     {
-        private Dataset _dataset;
+        private readonly Dataset _dataset;
 
         public DataExporter(Dataset dataset)
         {
@@ -24,21 +28,52 @@
                     ExportToJSON(filePath);
                     break;
                 default:
-                    throw new NotSupportedException("Export format not supported.");
+                    throw new NotSupportedException($"Data export to file format '{format}' is not supported.");
             }
         }
 
         private void ExportToCSV(string filePath)
         {
-            using (StreamWriter writer = new StreamWriter(filePath))
+            try
             {
+                using var writer = new StreamWriter(filePath);
+                using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
+                var columns = _dataset.GetObjects().First().GetColumns().Keys;
+
+                foreach (var column in columns)
+                {
+                    csv.WriteField(column);
+                }
+                csv.NextRecord();
+
+                foreach (var dataObject in _dataset.GetObjects())
+                {
+                    foreach (var column in columns)
+                    {
+                        csv.WriteField(dataObject.GetColumnValue(column));
+                    }
+
+                    csv.NextRecord();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error exporting data to CSV: {ex.Message}");
             }
         }
 
         private void ExportToJSON(string filePath)
         {
-
+            try
+            {
+                string jsonContent = JsonConvert.SerializeObject(_dataset.GetObjects(), Formatting.Indented);
+                File.WriteAllText(filePath, jsonContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error exporting data to JSON: {ex.Message}");
+            }
         }
     }
 }
