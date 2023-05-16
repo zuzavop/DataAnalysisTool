@@ -48,5 +48,15 @@
         {
             return data.ContainsKey(column) && data[column] == value;
         }
+
+        internal Dictionary<string, string> GetColumns()
+        {
+            return data;
+        }
+
+        public string GetColumnValue(string column)
+        {
+            return data[column];
+        }
     }
 }

@@ -1,30 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAnalysisTool
+﻿namespace DataAnalysisTool
 {
     interface IDataVisualizer
     {
-        void VisualizeData(Dataset dataset, string[] columns, string chartType);
+        void VisualizeData(string[] columns, string chartType);
     }
 
     class DataVisualizer : IDataVisualizer
     {
-        public void VisualizeData(Dataset dataset, string[] columns, string chartType)
+        private Dataset _dataset;
+        public DataVisualizer(Dataset dataset)
+        {
+            this._dataset = dataset;
+        }
+        public void VisualizeData(string[] columns, string chartType)
         {
             Console.WriteLine("Data Visualization");
 
-            foreach (DataObject dataObject in dataset.GetObjects())
+            foreach (DataObject dataObject in _dataset.GetObjects())
             {
-                string value = dataObject.Value;
-                int count = int.Parse(value);
+                foreach (var kvp in dataObject.GetColumns())
+                {
+                    string column = kvp.Key;
+                    string value = kvp.Value;
 
-                string visualization = new string('*', count);
-                Console.WriteLine($"{value}: {visualization}");
+                    Console.WriteLine($"{column}: {value}");
+                }
             }
         }
     }

@@ -1,25 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAnalysisTool
+﻿namespace DataAnalysisTool
 {
     interface IDataProcessor
     {
-        void PerformCalculations(Dataset dataSet, string variable, string[] calculations);
-        void ApplyFilters(Dataset dataSet, string column, string value);
-        void CleanAndPreprocessData(Dataset dataSet);
+        void PerformCalculations(string variable, string[] calculations);
+        void ApplyFilters(string column, string value);
+        void CleanAndPreprocessData();
     }
 
     class DataProcessor : IDataProcessor
     {
-        public void PerformCalculations(Dataset dataset, string variable, string[] calculations)
+        private Dataset _dataset;
+
+        public DataProcessor(Dataset dataset)
+        {
+            _dataset = dataset;
+        }
+        public void PerformCalculations(string variable, string[] calculations)
         {
             // Retrieve the values for the specified variable from the DataSet
-            IEnumerable<string> values = dataset.GetObjects().Select(dataObject => dataObject.Value);
+            IEnumerable<string> values = null; // _dataset.GetObjects().Select(dataObject => dataObject.Value);
 
             // Perform calculations based on the specified operations
             foreach (string calculation in calculations)
@@ -34,7 +33,6 @@ namespace DataAnalysisTool
                         double median = CalculateMedian(values);
                         Console.WriteLine($"Median of {variable}: {median}");
                         break;
-                    // Add more cases for additional calculations if needed
                     default:
                         throw new NotSupportedException($"Calculation '{calculation}' is not supported.");
                 }
@@ -43,29 +41,23 @@ namespace DataAnalysisTool
 
         private double CalculateMean(IEnumerable<string> values)
         {
-            // Convert the string values to double and calculate the mean
-            IEnumerable<double> numericValues = values.Select(double.Parse);
-            double mean = numericValues.Average();
-            return mean;
+            return 0;
         }
 
         private double CalculateMedian(IEnumerable<string> values)
         {
-            // Convert the string values to double and calculate the median
-            IEnumerable<double> numericValues = values.Select(double.Parse);
-            // double median = numericValues.Median();
-            return median;
+            return 0;
         }
 
-        public void ApplyFilters(Dataset dataset, string column, string value)
+        public void ApplyFilters(string column, string value)
         {
-            // Filter the DataSet based on the specified column and value
-            dataset.FilterByColumnValue(column, value);
+            // Filter the Dataset based on the specified column and value
+            _dataset.FilterByColumnValue(column, value);
         }
 
-        public void CleanAndPreprocessData(Dataset dataSet)
+        public void CleanAndPreprocessData()
         {
-            // Implementation to clean and preprocess the data
+            // TODO: Implementation to clean and preprocess the data
         }
     }
 }

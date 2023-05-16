@@ -1,28 +1,22 @@
 ﻿namespace DataAnalysisTool
 {
-    class DataAnalyzer
-    {
-        IDataImporter dataImporter;
-        IDataExporter dataExporter;
-        IDataProcessor dataProcessor;
-        IDataVisualizer dataVisualizer;
-        IDatasetExplorer datasetExplorer;
-
-        public DataAnalyzer()
-        {
-            this.dataImporter = new DataImporter();
-            this.dataExporter = new DataExporter();
-            this.dataProcessor = new DataProcessor();
-            this.dataVisualizer = new DataVisualizer();
-            this.datasetExplorer = new DatasetExplorer();
-        }
-    }
-
     internal class Program
     {
         static void Main(string[] args)
         {
-            DataAnalyzer analysis = new();
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Please provide the input filename as a command-line argument.");
+                return;
+            }
+            else
+            {
+                DataAnalyzer analyzer = new(args);
+                analyzer.Run();
+
+                Console.WriteLine("Program terminated. Press any key to exit.");
+                Console.ReadKey();
+            }
         }
     }
 }
