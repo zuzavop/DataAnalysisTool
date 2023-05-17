@@ -13,9 +13,6 @@
             {
                 DataAnalyzer analyzer = new(args);
                 analyzer.Run();
-
-                Console.WriteLine("Program terminated. Press any key to exit.");
-                Console.ReadKey();
             }
         }
     }

@@ -18,7 +18,7 @@
         {
             Console.WriteLine("Dataset Exploration");
 
-            int totalObjects = _dataset.GetObjects().Count();
+            int totalObjects = _dataset.GetData().Count();
             Console.WriteLine($"Total objects in the dataset: {totalObjects}");
 
             Console.WriteLine("Available Columns:");
@@ -44,9 +44,9 @@
 
         private string[] GetAvailableColumns()
         {
-            if (_dataset.GetObjects().Any())
+            if (_dataset.GetData().Any())
             {
-                DataObject firstObject = _dataset.GetObjects().First();
+                DataObject firstObject = _dataset.GetData().First();
                 return firstObject.GetColumns().Values.ToArray();
             }
             else
@@ -60,10 +60,12 @@
             // Count the number of unique values in the specified column
             HashSet<string> uniqueValues = new();
 
-            foreach (DataObject dataObject in _dataset.GetObjects())
+            foreach (DataObject dataObject in _dataset.GetData())
             {
-                string value = dataObject.GetColumnValue(column);
-                uniqueValues.Add(value);
+                if (dataObject.TryGetColumnValue(column, out string value))
+                {
+                    uniqueValues.Add(value);
+                }
             }
 
             return uniqueValues.Count;
@@ -74,16 +76,18 @@
             // Count the occurrences of each value in the specified column
             Dictionary<string, int> valueOccurrences = new();
 
-            foreach (DataObject dataObject in _dataset.GetObjects())
+            foreach (DataObject dataObject in _dataset.GetData())
             {
-                string value = dataObject.GetColumnValue(column);
-                if (valueOccurrences.ContainsKey(value))
+                if (dataObject.TryGetColumnValue(column, out string value))
                 {
-                    valueOccurrences[value]++;
-                }
-                else
-                {
-                    valueOccurrences[value] = 1;
+                    if (valueOccurrences.ContainsKey(value))
+                    {
+                        valueOccurrences[value]++;
+                    }
+                    else
+                    {
+                        valueOccurrences[value] = 1;
+                    }
                 }
             }
 

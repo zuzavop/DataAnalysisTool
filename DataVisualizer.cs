@@ -16,12 +16,12 @@
         {
             Console.WriteLine("Data Visualization");
 
-            foreach (DataObject dataObject in _dataset.GetObjects())
+            foreach (DataObject dataObject in _dataset.GetData())
             {
                 foreach (var kvp in dataObject.GetColumns())
                 {
                     string column = kvp.Key;
-                    string value = kvp.Value;
+                    string? value = kvp.Value;
 
                     Console.WriteLine($"{column}: {value}");
                 }

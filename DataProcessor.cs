@@ -1,4 +1,6 @@
-﻿namespace DataAnalysisTool
+﻿using System.Data;
+
+namespace DataAnalysisTool
 {
     interface IDataProcessor
     {
@@ -15,10 +17,10 @@
         {
             _dataset = dataset;
         }
-        public void PerformCalculations(string variable, string[] calculations)
+        public void PerformCalculations(string columnName, string[] calculations)
         {
             // Retrieve the values for the specified variable from the DataSet
-            IEnumerable<string> values = null; // _dataset.GetObjects().Select(dataObject => dataObject.Value);
+            List<string> values = (List<string>)_dataset.GetData().Select(dataObject => dataObject.TryGetColumnValue(columnName, out string value));
 
             // Perform calculations based on the specified operations
             foreach (string calculation in calculations)
@@ -27,11 +29,11 @@
                 {
                     case "mean":
                         double mean = CalculateMean(values);
-                        Console.WriteLine($"Mean of {variable}: {mean}");
+                        Console.WriteLine($"Mean of {columnName}: {mean}");
                         break;
                     case "median":
                         double median = CalculateMedian(values);
-                        Console.WriteLine($"Median of {variable}: {median}");
+                        Console.WriteLine($"Median of {columnName}: {median}");
                         break;
                     default:
                         throw new NotSupportedException($"Calculation '{calculation}' is not supported.");
@@ -39,14 +41,21 @@
             }
         }
 
-        private double CalculateMean(IEnumerable<string> values)
+        private static double CalculateMean(List<string> values)
         {
-            return 0;
+            // Convert the string values to double and calculate the mean
+            IEnumerable<double> numericValues = values.Select(double.Parse);
+            double mean = numericValues.Average();
+            return mean;
         }
 
-        private double CalculateMedian(IEnumerable<string> values)
+        private static double CalculateMedian(List<string> values)
         {
-            return 0;
+            // Convert the string values to double and calculate the median
+            IEnumerable<double> numericValues = values.Select(double.Parse).OrderBy(x => x);
+            double mid = (numericValues.Count() - 1) / 2.0;
+            double median = (numericValues.ElementAt((int)(mid)) + numericValues.ElementAt((int)(mid + 0.5))) / 2;
+            return median;
         }
 
         public void ApplyFilters(string column, string value)
@@ -57,7 +66,16 @@
 
         public void CleanAndPreprocessData()
         {
-            // TODO: Implementation to clean and preprocess the data
+            // Clean data by removing any rows with missing values
+            _dataset.RemoveRowsWithMissingValues();
+
+            // Preprocess data by normalizing numeric columns
+            List<string> numericColumns = _dataset.GetNumericColumns();
+
+            foreach (string column in numericColumns)
+            {
+                _dataset.NormalizeColumn(column);
+            }
         }
     }
 }

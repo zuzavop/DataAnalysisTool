@@ -39,7 +39,7 @@ namespace DataAnalysisTool
                 using var writer = new StreamWriter(filePath);
                 using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-                var columns = _dataset.GetObjects().First().GetColumns().Keys;
+                var columns = _dataset.GetData().First().GetColumns().Keys;
 
                 foreach (var column in columns)
                 {
@@ -47,11 +47,15 @@ namespace DataAnalysisTool
                 }
                 csv.NextRecord();
 
-                foreach (var dataObject in _dataset.GetObjects())
+
+                foreach (var dataObject in _dataset.GetData())
                 {
                     foreach (var column in columns)
                     {
-                        csv.WriteField(dataObject.GetColumnValue(column));
+                        if (dataObject.TryGetColumnValue(column, out string? value))
+                        {
+                            csv.WriteField(value);
+                        }
                     }
 
                     csv.NextRecord();
@@ -67,7 +71,7 @@ namespace DataAnalysisTool
         {
             try
             {
-                string jsonContent = JsonConvert.SerializeObject(_dataset.GetObjects(), Formatting.Indented);
+                string jsonContent = JsonConvert.SerializeObject(_dataset.GetData(), Formatting.Indented);
                 File.WriteAllText(filePath, jsonContent);
             }
             catch (Exception ex)

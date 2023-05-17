@@ -42,30 +42,39 @@ namespace DataAnalysisTool
                 using var reader = new StreamReader(filePath);
                 string[]? headers = reader.ReadLine()?.Split(',');
 
-                while (!reader.EndOfStream)
+                if (headers != null)
                 {
-                    string[]? values = reader.ReadLine()?.Split(',');
-
-                    if (values?.Length != headers?.Length)
+                    dataset.SetHeader(headers);
+                    while (!reader.EndOfStream)
                     {
-                        Console.WriteLine("Invalid data format. Skipping row.");
-                        continue;
+                        string[]? values = reader.ReadLine()?.Split(',');
+
+                        if (values == null)
+                        {
+                            break;
+                        }
+
+                        if (values.Length != headers.Length)
+                        {
+                            Console.WriteLine("Invalid data format. Skipping row.");
+                            continue;
+                        }
+
+                        DataObject dataObject = new();
+
+                        for (int i = 0; i < headers.Length; i++)
+                        {
+                            string column = headers[i];
+                            string value = values[i];
+
+                            dataObject.SetColumnValue(column, value);
+                        }
+
+                        dataset.AddData(dataObject);
                     }
-
-                    DataObject dataObject = new DataObject();
-
-                    for (int i = 0; i < headers?.Length; i++)
-                    {
-                        string column = headers[i];
-                        string? value = values?[i];
-
-                        dataObject.AddColumnValue(column, value);
-                    }
-
-                    dataset.Add(dataObject);
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 Console.WriteLine($"Error importing CSV data: {ex.Message}");
             }
@@ -78,12 +87,15 @@ namespace DataAnalysisTool
                 string jsonContent = File.ReadAllText(filePath);
                 DataObject[]? dataObjects = JsonConvert.DeserializeObject<DataObject[]>(jsonContent);
 
-                foreach (DataObject dataObject in dataObjects)
+                if (dataObjects != null && dataObjects.Length > 0)
                 {
-                    dataset.Add(dataObject);
-                }
+                    foreach (DataObject dataObject in dataObjects)
+                    {
+                        dataset.AddData(dataObject);
+                    }
+                }                
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 Console.WriteLine($"Error importing JSON data: {ex.Message}");
             }
