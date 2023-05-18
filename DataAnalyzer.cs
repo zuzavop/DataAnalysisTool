@@ -40,7 +40,7 @@
                     else if (command.StartsWith("export "))
                     {
                         string filePath = command[7..].Trim();
-                        dataExporter.ExportData(filePath, "csv");
+                        dataExporter.ExportData(filePath);
                     }
                     else if (command.Trim().Equals("show"))
                     {
@@ -53,7 +53,7 @@
                     }
                     else if (command.Trim().Equals("help"))
                     {
-                        Console.WriteLine("Enter a command (explore, analyze <column>, exit):");
+                        PrintHelp();
                     }
                     else
                     {
@@ -61,6 +61,11 @@
                     }
                 }
             }
+        }
+
+        private void PrintHelp()
+        {
+            Console.WriteLine("Enter a command (explore, analyze <column>, exit):");
         }
     }
 }

@@ -53,9 +53,10 @@
             // Count the number of unique values in the specified column
             HashSet<string> uniqueValues = new();
 
+            string? value;
             foreach (DataObject dataObject in _dataset.GetData())
             {
-                if (dataObject.TryGetColumnValue(column, out string value))
+                if ((value = dataObject.GetColumnValue(column)) != null)
                 {
                     uniqueValues.Add(value);
                 }
@@ -69,9 +70,10 @@
             // Count the occurrences of each value in the specified column
             Dictionary<string, int> valueOccurrences = new();
 
+            string? value;
             foreach (DataObject dataObject in _dataset.GetData())
             {
-                if (dataObject.TryGetColumnValue(column, out string value))
+                if ((value = dataObject.GetColumnValue(column)) != null)
                 {
                     if (valueOccurrences.ContainsKey(value))
                     {

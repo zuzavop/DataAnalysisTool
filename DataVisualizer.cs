@@ -19,11 +19,10 @@ namespace DataAnalysisTool
 
         public void PrintData(string[] columns)
         {
-            Console.WriteLine("Data Visualization");
-
             // Print column headers
             PrintRow(columns.ToList());
 
+            string? value;
             // Print data rows
             foreach (var dataObject in _dataset.GetData())
             {
@@ -31,7 +30,7 @@ namespace DataAnalysisTool
 
                 foreach (var column in columns)
                 {
-                    if (dataObject.TryGetColumnValue(column, out string value))
+                    if ((value = dataObject.GetColumnValue(column)) != null)
                     {
                         values.Add(value);
                     }

@@ -9,7 +9,7 @@ namespace DataAnalysisTool
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException("File not found.", filePath);
+                throw new FileNotFoundException($"File {filePath} not found.");
             }
 
             Dataset dataset = new();

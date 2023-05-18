@@ -13,9 +13,10 @@ namespace DataAnalysisTool
             _dataset = dataset;
         }
 
-        public void ExportData(string filePath, string format)
+        public void ExportData(string filePath)
         {
-            switch (format.ToLower())
+            string fileExtension = Path.GetExtension(filePath);
+            switch (fileExtension.ToLower())
             {
                 case "csv":
                     ExportToCSV(filePath);
@@ -24,7 +25,7 @@ namespace DataAnalysisTool
                     ExportToJSON(filePath);
                     break;
                 default:
-                    throw new NotSupportedException($"Data export to file format '{format}' is not supported.");
+                    throw new NotSupportedException($"Data export to file format '{fileExtension}' is not supported.");
             }
         }
 
@@ -43,12 +44,12 @@ namespace DataAnalysisTool
                 }
                 csv.NextRecord();
 
-
+                string? value;
                 foreach (var dataObject in _dataset.GetData())
                 {
                     foreach (var column in columns)
                     {
-                        if (dataObject.TryGetColumnValue(column, out string? value))
+                        if ((value = dataObject.GetColumnValue(column)) != null)
                         {
                             csv.WriteField(value);
                         }
