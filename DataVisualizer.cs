@@ -4,7 +4,7 @@ namespace DataAnalysisTool
 {
     class DataVisualizer
     {
-        private Dataset _dataset;
+        private readonly Dataset _dataset;
         public DataVisualizer(Dataset dataset)
         {
             this._dataset = dataset;

@@ -9,11 +9,9 @@
                 Console.WriteLine("Please provide the input filename as a command-line argument.");
                 return;
             }
-            else
-            {
-                DataAnalyzer analyzer = new(args);
-                analyzer.Run();
-            }
+            
+            DataAnalyzer analyzer = new();
+            analyzer.Run(args[0]);
         }
     }
 }

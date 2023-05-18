@@ -2,7 +2,7 @@
 {
     class DatasetExplorer
     {
-        private Dataset _dataset;
+        private readonly Dataset _dataset;
         public DatasetExplorer(Dataset dataset)
         {
             _dataset = dataset;
@@ -10,15 +10,20 @@
 
         public void ExploreDataset()
         {
-            Console.WriteLine("Dataset Exploration");
-
-            int totalObjects = _dataset.GetData().Count();
+            int totalObjects = _dataset.GetData().Count;
             Console.WriteLine($"Total objects in the dataset: {totalObjects}");
 
-            Console.WriteLine("Available Columns:");
-            foreach (string column in GetAvailableColumns())
+            Console.Write("Available Columns:");
+            var columnsNames = GetAvailableColumns();
+            if (columnsNames.Length > 0 )
             {
-                Console.WriteLine(column);
+                foreach (string column in columnsNames)
+                {
+                    Console.WriteLine(column);
+                }
+            } else
+            {
+                Console.WriteLine("[]");
             }
         }
 

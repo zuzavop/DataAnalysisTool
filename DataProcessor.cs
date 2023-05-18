@@ -4,7 +4,7 @@ namespace DataAnalysisTool
 {
     class DataProcessor
     {
-        private Dataset _dataset;
+        private readonly Dataset _dataset;
 
         public DataProcessor(Dataset dataset)
         {
