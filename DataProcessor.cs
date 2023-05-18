@@ -2,14 +2,7 @@
 
 namespace DataAnalysisTool
 {
-    interface IDataProcessor
-    {
-        void PerformCalculations(string variable, string[] calculations);
-        void ApplyFilters(string column, string value);
-        void CleanAndPreprocessData();
-    }
-
-    class DataProcessor : IDataProcessor
+    class DataProcessor
     {
         private Dataset _dataset;
 
@@ -20,28 +13,31 @@ namespace DataAnalysisTool
         public void PerformCalculations(string columnName, string[] calculations)
         {
             // Retrieve the values for the specified variable from the DataSet
-            List<string> values = (List<string>)_dataset.GetData().Select(dataObject => dataObject.TryGetColumnValue(columnName, out string value));
+            IEnumerable<string> values = _dataset.GetData().Select(dataObject => dataObject.GetColumnValue(columnName)).Where(value => value != null)!;
 
-            // Perform calculations based on the specified operations
-            foreach (string calculation in calculations)
+            if (values != null)
             {
-                switch (calculation.ToLower())
+                // Perform calculations based on the specified operations
+                foreach (string calculation in calculations)
                 {
-                    case "mean":
-                        double mean = CalculateMean(values);
-                        Console.WriteLine($"Mean of {columnName}: {mean}");
-                        break;
-                    case "median":
-                        double median = CalculateMedian(values);
-                        Console.WriteLine($"Median of {columnName}: {median}");
-                        break;
-                    default:
-                        throw new NotSupportedException($"Calculation '{calculation}' is not supported.");
+                    switch (calculation.ToLower())
+                    {
+                        case "mean":
+                            double mean = CalculateMean(values);
+                            Console.WriteLine($"Mean of {columnName}: {mean}");
+                            break;
+                        case "median":
+                            double median = CalculateMedian(values);
+                            Console.WriteLine($"Median of {columnName}: {median}");
+                            break;
+                        default:
+                            throw new NotSupportedException($"Calculation '{calculation}' is not supported.");
+                    }
                 }
             }
         }
 
-        private static double CalculateMean(List<string> values)
+        private static double CalculateMean(IEnumerable<string> values)
         {
             // Convert the string values to double and calculate the mean
             IEnumerable<double> numericValues = values.Select(double.Parse);
@@ -49,7 +45,7 @@ namespace DataAnalysisTool
             return mean;
         }
 
-        private static double CalculateMedian(List<string> values)
+        private static double CalculateMedian(IEnumerable<string> values)
         {
             // Convert the string values to double and calculate the median
             IEnumerable<double> numericValues = values.Select(double.Parse).OrderBy(x => x);

@@ -1,12 +1,6 @@
 ﻿namespace DataAnalysisTool
 {
-    interface IDatasetExplorer
-    {
-        void ExploreDataset();
-        void AnalyzeColumn(string column);
-    }
-
-    class DatasetExplorer : IDatasetExplorer
+    class DatasetExplorer
     {
         private Dataset _dataset;
         public DatasetExplorer(Dataset dataset)
@@ -46,8 +40,7 @@
         {
             if (_dataset.GetData().Any())
             {
-                DataObject firstObject = _dataset.GetData().First();
-                return firstObject.GetColumns().Values.ToArray();
+                return _dataset.GetColumnsNames().ToArray();
             }
             else
             {

@@ -2,19 +2,16 @@
 {
     class DataAnalyzer
     {
-        readonly IDataImporter dataImporter;
-        readonly IDataExporter dataExporter;
-        readonly IDataProcessor dataProcessor;
-        readonly IDataVisualizer dataVisualizer;
-        readonly IDatasetExplorer datasetExplorer;
+        readonly DataExporter dataExporter;
+        readonly DataProcessor dataProcessor;
+        readonly DataVisualizer dataVisualizer;
+        readonly DatasetExplorer datasetExplorer;
         readonly Dataset inputDataset;
 
         public DataAnalyzer(string[] args)
         {
-            this.dataImporter = new DataImporter();
-
             string inputFilePath = args[0];
-            inputDataset = dataImporter.ImportData(inputFilePath);
+            inputDataset = DataImporter.ImportData(inputFilePath);
 
             this.dataExporter = new DataExporter(inputDataset);
             this.dataProcessor = new DataProcessor(inputDataset);
@@ -36,7 +33,7 @@
                         string column = command[8..].Trim();
                         datasetExplorer.AnalyzeColumn(column);
                     }
-                    else if (command == "explore")
+                    else if (command.Trim().Equals("explore"))
                     {
                         datasetExplorer.ExploreDataset();
                     }
@@ -45,17 +42,16 @@
                         string filePath = command[7..].Trim();
                         dataExporter.ExportData(filePath, "csv");
                     }
-                    else if (command.StartsWith("show "))
+                    else if (command.Trim().Equals("show"))
                     {
-                        string[] columns = command[5..].Trim().Split(" ");
-                        dataVisualizer.VisualizeData(columns, "string");
+                        dataVisualizer.PrintAllData();
                     }
                     else if (command.StartsWith("filter "))
                     {
                         string[] values = command[7..].Trim().Split(" ");
                         dataProcessor.ApplyFilters(values[0], values[1]);
                     }
-                    else if (command == "help")
+                    else if (command.Trim().Equals("help"))
                     {
                         Console.WriteLine("Enter a command (explore, analyze <column>, exit):");
                     }

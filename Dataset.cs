@@ -76,7 +76,28 @@
 
         internal List<string> GetNumericColumns()
         {
-            throw new NotImplementedException();
+            List<string> numericColumns = new List<string>();
+
+            foreach (string column in columnsNames)
+            {
+                bool isNumeric = true;
+
+                foreach (DataObject dataObject in data)
+                {
+                    if (!dataObject.TryGetNumericValue(column, out _))
+                    {
+                        isNumeric = false;
+                        break;
+                    }
+                }
+
+                if (isNumeric)
+                {
+                    numericColumns.Add(column);
+                }
+            }
+
+            return numericColumns;
         }
     }
 
@@ -92,6 +113,11 @@
         public bool TryGetColumnValue(string column, out string value)
         {
             return columnValuePairs.TryGetValue(column, out value);
+        }
+
+        public string? GetColumnValue(string columnName)
+        {
+            return columnValuePairs.ContainsKey(columnName) ? columnValuePairs[columnName] : null;
         }
 
         public bool TryGetNumericValue(string column, out double value)

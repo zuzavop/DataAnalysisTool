@@ -4,11 +4,7 @@ using System.Globalization;
 
 namespace DataAnalysisTool
 {
-    interface IDataExporter
-    {
-        void ExportData(string filePath, string format);
-    }
-    class DataExporter : IDataExporter
+    class DataExporter
     {
         private readonly Dataset _dataset;
 

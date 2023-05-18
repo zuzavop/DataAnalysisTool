@@ -2,13 +2,9 @@
 
 namespace DataAnalysisTool
 {
-    interface IDataImporter
+    class DataImporter
     {
-        Dataset ImportData(string filePath);
-    }
-    class DataImporter : IDataImporter
-    {
-        public Dataset ImportData(string filePath)
+        public static Dataset ImportData(string filePath)
         {
             // Check if the file exists
             if (!File.Exists(filePath))
@@ -85,13 +81,20 @@ namespace DataAnalysisTool
             try
             {
                 string jsonContent = File.ReadAllText(filePath);
-                DataObject[]? dataObjects = JsonConvert.DeserializeObject<DataObject[]>(jsonContent);
+                var dataObjects = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(jsonContent);
 
-                if (dataObjects != null && dataObjects.Length > 0)
+                if (dataObjects != null && dataObjects.Count > 0)
                 {
-                    foreach (DataObject dataObject in dataObjects)
+                    foreach (var dataObject in dataObjects)
                     {
-                        dataset.AddData(dataObject);
+                        DataObject newDataObject = new();
+
+                        foreach (var columnValue in dataObject)
+                        {
+                            newDataObject.SetColumnValue(columnValue.Key, columnValue.Value);
+                        }
+
+                        dataset.AddData(newDataObject);
                     }
                 }                
             }
