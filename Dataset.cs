@@ -27,6 +27,7 @@
 
         public void AddData(DataObject dataObject)
         {
+            dataObject.Id = data.Count;
             data.Add(dataObject);
         }
 
@@ -131,10 +132,12 @@
     class DataObject
     {
         private readonly Dictionary<string, string> columnValuePairs;
+        public int Id { get; set; }
 
-        public DataObject()
+        public DataObject(int iD)
         {
             columnValuePairs = new Dictionary<string, string>();
+            Id = iD;
         }
 
         public string? GetColumnValue(string columnName)
@@ -182,6 +185,21 @@
         public bool HasMissingValues(List<string> columnsNames)
         {
             return columnsNames.All(name => columnValuePairs.ContainsKey(name));
+        }
+
+        public List<double> GetNumericValues()
+        {
+            List<double> values = new();
+
+            foreach (var column in columnValuePairs)
+            {
+                if (TryGetNumericValue(column.Key, out double value))
+                {
+                    values.Add(value);
+                }
+            }
+
+            return values;
         }
     }
 }

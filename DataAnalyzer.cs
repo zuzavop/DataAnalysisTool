@@ -41,11 +41,13 @@
             DataVisualizer visualizer = new(inputDataset);
             DatasetExplorer explorer = new(inputDataset);
 
-            commands.Add("analyze", new AnalyzeFunc(new Action<string>(explorer.AnalyzeColumn), 1));
             commands.Add("explore", new AnalyzeFunc(new Action(explorer.ExploreDataset), 0));
             commands.Add("export", new AnalyzeFunc(new Action<string>(exporter.ExportData), 1));
             commands.Add("show", new AnalyzeFunc(new Action(visualizer.PrintAllData), 0));
             commands.Add("filter", new AnalyzeFunc(new Action<string, string>(processor.ApplyFilters), 2));
+            commands.Add("clean", new AnalyzeFunc(new Action(processor.CleanAndPreprocessData), 0));
+            
+
             commands.Add("help", new AnalyzeFunc(new Action(PrintHelp), 0));
         }
 
@@ -98,7 +100,7 @@
             this.NumberParams = numberParams;
         }
 
-        public bool StartFunc(params object[] args)
+        public bool StartFunc(params string[] args)
         {
             if (args.Length == NumberParams)
             {

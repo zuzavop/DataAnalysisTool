@@ -27,7 +27,7 @@
             }
         }
 
-        public void AnalyzeColumn(string column)
+        public void ExploreColumn(string column)
         {
             Console.WriteLine($"Analyzing Column: {column}");
 
