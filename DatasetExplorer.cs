@@ -27,15 +27,20 @@
             }
         }
 
-        public void ExploreColumn(string column)
+        public void ExploreColumn(string columnName)
         {
-            Console.WriteLine($"Analyzing Column: {column}");
+            if (_dataset.GetColumnsNames().Contains(columnName))
+            {
+                Console.WriteLine($"Current dataset doesn't contain column with name {columnName}".);
+                return;
+            }
+            Console.WriteLine($"Analyzing Column: {columnName}");
 
-            int count = CountColumnValues(column);
+            int count = CountColumnValues(columnName);
             Console.WriteLine($"Number of unique values: {count}");
 
             Console.WriteLine("Value\t\tCount");
-            foreach (var entry in CountColumnValueOccurrences(column))
+            foreach (var entry in CountColumnValueOccurrences(columnName))
             {
                 Console.WriteLine($"{entry.Key}\t\t{entry.Value}");
             }

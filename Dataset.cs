@@ -127,6 +127,26 @@
 
             return numericColumns;
         }
+
+        internal List<double> GetNumericColumnValues(string columnName)
+        {
+            if (columnName.Contains(columnName) && GetNumericColumns().Contains(columnName))
+            {
+                List<double> columnValues = new();
+
+                foreach (DataObject dataObject in data)
+                {
+                    if (dataObject.TryGetNumericValue(columnName, out double value))
+                    {
+                        columnValues.Add(value);
+                    }
+                }
+
+                return columnValues;
+            }
+
+            return new List<double>();
+        }
     }
 
     class DataObject

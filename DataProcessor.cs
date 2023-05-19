@@ -10,43 +10,37 @@ namespace DataAnalysisTool
         {
             _dataset = dataset;
         }
-        public void PerformCalculations(string columnName, string[] calculations)
+        public void PerformCalculations(string columnName, string calculation)
         {
-            // Retrieve the values for the specified variable from the DataSet
-            List<double> values = new();
-
-            foreach (DataObject dataObject in _dataset.GetData())
+            // Perform calculations based on the specified operations
+            switch (calculation.ToLower())
             {
-                if (dataObject.TryGetNumericValue(columnName, out double value))
-                {
-                    values.Add(value);
-                }
-            }
-
-            if (values != null)
-            {
-                // Perform calculations based on the specified operations
-                foreach (string calculation in calculations)
-                {
-                    switch (calculation.ToLower())
+                case "mean":
+                    double mean = CalculateMean(columnName);
+                    Console.WriteLine($"Mean of {columnName}: {mean}");
+                    break;
+                case "median":
+                    double median = CalculateMedian(columnName);
+                    Console.WriteLine($"Median of {columnName}: {median}");
+                    break;
+                case "deviation":
+                    double deviation = CalculateStandardDeviation(columnName);
+                    Console.WriteLine($"Standard deviation of {columnName}: {deviation}");
+                    break;
+                case "entropy":
+                    double entropy = CalculateColumnEntropy(columnName);
+                    Console.WriteLine($"Entropy of {columnName}: {entropy}");
+                    break;
+                case "all":
+                    var values = CalculateColumnStatistics(columnName);
+                    foreach(var value in values)
                     {
-                        case "mean":
-                            double mean = CalculateMean(values);
-                            Console.WriteLine($"Mean of {columnName}: {mean}");
-                            break;
-                        case "median":
-                            double median = CalculateMedian(values);
-                            Console.WriteLine($"Median of {columnName}: {median}");
-                            break;
-                        case "deviation":
-                            double deviation = CalculateStandardDeviation(values);
-                            Console.WriteLine($"Standard deviation of {columnName}: {deviation}");
-                            break;
-                        default:
-                            Console.WriteLine($"Calculation '{calculation}' is not supported.");
-                            return;
+                        Console.WriteLine($"{value.Key} of {columnName}: {value.Value}");
                     }
-                }
+                    break;
+                default:
+                    Console.WriteLine($"Calculation '{calculation}' is not supported.");
+                    return;
             }
         }
 
@@ -115,7 +109,7 @@ namespace DataAnalysisTool
         public double CalculateColumnEntropy(string column)
         {
             List<DataObject> dataObjects = _dataset.GetData();
-            Dictionary<string, int> valueCounts = new Dictionary<string, int>();
+            Dictionary<string, int> valueCounts = new();
             int totalCount = 0;
 
             string? value;
@@ -237,39 +231,6 @@ namespace DataAnalysisTool
             return numerator / denominator;
         }
 
-        private static double CalculateMean(List<double> values)
-        {
-            // Convert the string values to double and calculate the mean
-            double mean = values.Average();
-            return mean;
-        }
-
-        private static double CalculateMedian(List<double> values)
-        {
-            if (values.Count < 2)
-            {
-                return 0;
-            }
-            // Convert the string values to double and calculate the median
-            double mid = (values.Count - 1) / 2.0;
-            double median = (values.ElementAt((int)(mid)) + values.ElementAt((int)(mid + 0.5))) / 2;
-            return median;
-        }
-
-        private static double CalculateStandardDeviation(List<double> values)
-        {
-            if (values.Count < 2)
-            {
-                return 0;
-            }
-
-            double mean = values.Average();
-            double sumOfSquaredDifferences = values.Sum(value => Math.Pow(value - mean, 2));
-            double variance = sumOfSquaredDifferences / (values.Count - 1);
-
-            return Math.Sqrt(variance);
-        }
-
         public void ApplyFilters(string column, string value)
         {
             // Filter the Dataset based on the specified column and value
@@ -343,12 +304,14 @@ namespace DataAnalysisTool
             return occurrences;
         }
 
-        public Dictionary<string, double> CalculateColumnStatistics(string column)
+        private Dictionary<string, double> CalculateColumnStatistics(string columnName)
         {
             Dictionary<string, double> statistics = new();
 
-            double mean = CalculateMean(column);
-            double stdDev = CalculateStandardDeviation(column);
+            double mean = CalculateMean(columnName);
+            double median = CalculateMedian(columnName);
+            double stdDev = CalculateStandardDeviation(columnName);
+            double entropy = CalculateColumnEntropy(columnName);
             double min = double.MaxValue;
             double max = double.MinValue;
 
@@ -356,7 +319,7 @@ namespace DataAnalysisTool
 
             foreach (DataObject dataObject in dataObjects)
             {
-                if (dataObject.TryGetNumericValue(column, out double value))
+                if (dataObject.TryGetNumericValue(columnName, out double value))
                 {
                     min = Math.Min(min, value);
                     max = Math.Max(max, value);
@@ -364,7 +327,9 @@ namespace DataAnalysisTool
             }
 
             statistics["Mean"] = mean;
+            statistics["Meadian"] = median;
             statistics["Standard Deviation"] = stdDev;
+            statistics["Entropy"] = entropy;
             statistics["Min"] = min;
             statistics["Max"] = max;
 
