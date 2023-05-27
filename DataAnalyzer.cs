@@ -168,6 +168,7 @@ namespace DataAnalysisTool
                 Console.WriteLine($" - {analyzeFunc.HelpText}");
                 Console.WriteLine();
             }
+            Console.WriteLine("  exit - Exit.");
         }
 
         private class AnalyzeFunc

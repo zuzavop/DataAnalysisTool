@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Net.Http.Json;
 
 namespace DataAnalysisTool
 {
@@ -68,8 +69,23 @@ namespace DataAnalysisTool
         {
             try
             {
-                string jsonContent = JsonConvert.SerializeObject(_dataset.GetData(), Formatting.Indented);
-                File.WriteAllText(filePath, jsonContent);
+                using var writer = new StreamWriter(filePath);
+                writer.WriteLine("[");
+                int i = 0;
+                foreach (var dataObject in _dataset.GetData())
+                {
+                    if (i > 0)
+                    {
+                        writer.WriteLine(",");
+                    } else
+                    {
+                        ++i;
+                    }
+                    string jsonContent = JsonConvert.SerializeObject(dataObject.columnValuePairs, Formatting.Indented);
+                    writer.Write(jsonContent);
+                }
+                writer.WriteLine();
+                writer.WriteLine("]");
             }
             catch (Exception ex)
             {

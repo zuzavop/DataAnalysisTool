@@ -25,6 +25,11 @@
             }
         }
 
+        public void AddHeaderName(string name)
+        {
+            columnsNames.Add(name);
+        }
+
         public void AddData(DataObject dataObject)
         {
             dataObject.Id = data.Count;
@@ -167,7 +172,7 @@
 
     class DataObject
     {
-        private readonly Dictionary<string, string> columnValuePairs;
+        public readonly Dictionary<string, string> columnValuePairs;
         public int Id { get; set; }
 
         public DataObject(int iD)

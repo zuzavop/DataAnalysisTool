@@ -96,6 +96,10 @@ namespace DataAnalysisTool
                         foreach (var columnValue in dataObject)
                         {
                             newDataObject.SetColumnValue(columnValue.Key, columnValue.Value);
+                            if (!dataset.GetColumnsNames().Contains(columnValue.Key))
+                            {
+                                dataset.AddHeaderName(columnValue.Key);
+                            }
                         }
 
                         dataset.AddData(newDataObject);
