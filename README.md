@@ -4,13 +4,19 @@ The Data Analysis Tool is a command-line program designed to help users analyze 
 
 ## Installation
 1. Download the Data Analysis Tool executable file from the provided source.
-2. Save the executable file to a directory of your choice.
+2. Build the application:
+* Open a terminal or command prompt.
+* Navigate to the directory containing the DataAnalysisTool project files.
+* Run the following command to build the application:
+```
+dotnet build
+```
 
 ## Usage
-To run the Data Analysis Tool, open a command prompt or terminal and navigate to the directory where the executable file is located. Then, use the following command:
+To run the Data Analysis Tool, open a command prompt or terminal and navigate to the directory where the project is located. Then, use the following command:
 
 ```
-DataAnalysisTool <input-file> [options]
+dotnet run -- <input-file> [options]
 ```
 
 Replace <input-file> with the path to your data file (CSV or JSON).
@@ -28,21 +34,21 @@ Once the Data Analysis Tool is running, you can enter commands to perform variou
 The explore command displays the entire dataset.
 
 ```
-> explore
+>> explore
 ```
 
 ### analyze <column>
 The analyze command allows you to analyze a specific column in the dataset. Replace <column> with the name of the column you want to analyze.
 
 ```
-> analyze Age
+>> analyze Age
 ```
 
 ### exit
 The exit command terminates the Data Analysis Tool.
 
 ```
-> exit
+>> exit
 ```
 ## Examples
 Here are some examples of how to use the Data Analysis Tool:
@@ -57,9 +63,9 @@ DataAnalysisTool data.json -o output.csv
 ```
 3. Explore the imported dataset:
 ```
-> explore
+>> explore
 ```
 4. Analyze the "sales" column:
 ```
-> analyze sales
+>> analyze sales
 ```

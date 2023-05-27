@@ -17,30 +17,29 @@ namespace DataAnalysisTool
             {
                 case "mean":
                     double mean = CalculateMean(columnName);
-                    Console.WriteLine($"Mean of {columnName}: {mean}");
+                    Console.WriteLine($"Mean of column {columnName}: {mean}");
                     break;
                 case "median":
                     double median = CalculateMedian(columnName);
-                    Console.WriteLine($"Median of {columnName}: {median}");
+                    Console.WriteLine($"Median of column {columnName}: {median}");
                     break;
                 case "deviation":
                     double deviation = CalculateStandardDeviation(columnName);
-                    Console.WriteLine($"Standard deviation of {columnName}: {deviation}");
+                    Console.WriteLine($"Standard deviation of column {columnName}: {deviation}");
                     break;
                 case "entropy":
                     double entropy = CalculateColumnEntropy(columnName);
-                    Console.WriteLine($"Entropy of {columnName}: {entropy}");
+                    Console.WriteLine($"Entropy of column {columnName}: {entropy}");
                     break;
                 case "all":
                     var values = CalculateColumnStatistics(columnName);
                     foreach(var value in values)
                     {
-                        Console.WriteLine($"{value.Key} of {columnName}: {value.Value}");
+                        Console.WriteLine($"{value.Key} of column {columnName}: {value.Value}");
                     }
                     break;
                 default:
-                    Console.WriteLine($"Calculation '{calculation}' is not supported.");
-                    return;
+                    throw new DataAnalysisException($"Calculation '{calculation}' is not supported.");
             }
         }
 
@@ -106,7 +105,7 @@ namespace DataAnalysisTool
             return Math.Sqrt(variance);
         }
 
-        public double CalculateColumnEntropy(string column)
+        private double CalculateColumnEntropy(string column)
         {
             List<DataObject> dataObjects = _dataset.GetData();
             Dictionary<string, int> valueCounts = new();
@@ -210,7 +209,7 @@ namespace DataAnalysisTool
         {
             if (values1.Count != values2.Count)
             {
-                throw new ArgumentException("The number of values in both lists must be the same.");
+                throw new DataAnalysisException("The number of values in both lists must be the same.");
             }
 
             int n = values1.Count;
@@ -280,30 +279,6 @@ namespace DataAnalysisTool
             return outliers;
         }
 
-        public Dictionary<string, int> CountOccurrences(string column)
-        {
-            List<DataObject> dataObjects = _dataset.GetData();
-            Dictionary<string, int> occurrences = new();
-
-            string? value;
-            foreach (DataObject dataObject in dataObjects)
-            {
-                if ((value = dataObject.GetColumnValue(column)) != null)
-                {
-                    if (occurrences.ContainsKey(value))
-                    {
-                        occurrences[value]++;
-                    }
-                    else
-                    {
-                        occurrences[value] = 1;
-                    }
-                }
-            }
-
-            return occurrences;
-        }
-
         private Dictionary<string, double> CalculateColumnStatistics(string columnName)
         {
             Dictionary<string, double> statistics = new();
@@ -334,6 +309,17 @@ namespace DataAnalysisTool
             statistics["Max"] = max;
 
             return statistics;
+        }
+
+        public void AppendNewData(string filePath)
+        {
+            Dataset new_data = DataImporter.ImportData(filePath);
+            _dataset.AddDataset(new_data);
+        }
+
+        public void SortColumn(string columnName)
+        {
+            _dataset.SortByColumn(columnName);
         }
     }
 }

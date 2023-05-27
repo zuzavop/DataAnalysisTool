@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DataAnalysisTool": {
+      "commandName": "Project",
+      "commandLineArgs": "a.csv"
+    }
+  }
+}

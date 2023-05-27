@@ -8,7 +8,18 @@
             _dataset = dataset;
         }
 
-        public void ExploreDataset()
+        public void ExploreDataset(string columnName="")
+        {
+            if (columnName == "")
+            {
+                ExploreDataset();
+            } else
+            {
+                ExploreColumn(columnName);
+            }
+        }
+
+        private void ExploreDataset()
         {
             int totalObjects = _dataset.GetData().Count;
             Console.WriteLine($"Total objects in the dataset: {totalObjects}");
@@ -19,19 +30,20 @@
             {
                 foreach (string column in columnsNames)
                 {
-                    Console.WriteLine(column);
+                    Console.Write(column + " ");
                 }
+                Console.WriteLine();
             } else
             {
                 Console.WriteLine("[]");
             }
         }
 
-        public void ExploreColumn(string columnName)
+        private void ExploreColumn(string columnName)
         {
-            if (_dataset.GetColumnsNames().Contains(columnName))
+            if (!_dataset.GetColumnsNames().Contains(columnName))
             {
-                Console.WriteLine($"Current dataset doesn't contain column with name {columnName}".);
+                Console.WriteLine($"Current dataset doesn't contain column with name {columnName}.");
                 return;
             }
             Console.WriteLine($"Analyzing Column: {columnName}");

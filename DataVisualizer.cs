@@ -12,10 +12,10 @@
         {
             string[] columns = _dataset.GetColumnsNames().ToArray();
 
-            PrintData(columns);
+            PrintColumns(columns);
         }
 
-        public void PrintData(string[] columns)
+        private void PrintColumns(string[] columns)
         {
             // Print column headers
             PrintRow(columns.ToList());
@@ -47,7 +47,7 @@
             Console.WriteLine(string.Join("\t", values));
         }
 
-        public void CreateAndSavePlot(string xColumn, string yColumn, string savePath)
+        private void CreateAndSavePlot(string xColumn, string yColumn, string savePath)
         {
             // Get the data for the specified columns
             List<double> xValues = _dataset.GetNumericColumnValues(xColumn);
@@ -60,6 +60,31 @@
             }
 
             // TODO
+        }
+
+        public void CreateAndSaveLinePlot()
+        {
+
+        }
+
+        public void CreateAndSaveBarPlot()
+        {
+
+        }
+
+        public void CreateAndSaveScatterPlot()
+        {
+
+        }
+
+        public void CreateAndSavePiePlot()
+        {
+
+        }
+
+        public void CreateAndSaveHistogram()
+        {
+
         }
     }
 }

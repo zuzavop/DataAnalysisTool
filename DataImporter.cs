@@ -4,7 +4,7 @@ namespace DataAnalysisTool
 {
     class DataImporter
     {
-        public static Dataset ImportData(string filePath)
+        public static Dataset ImportData(string filePath, char separator = ',')
         {
             // Check if the file exists
             if (!File.Exists(filePath))
@@ -19,7 +19,7 @@ namespace DataAnalysisTool
             switch (fileExtension.ToLower())
             {
                 case ".csv":
-                    ImportCSVData(filePath, dataset);
+                    ImportCSVData(filePath, dataset, separator);
                     break;
                 case ".json":
                     ImportJSONData(filePath, dataset);
@@ -31,19 +31,20 @@ namespace DataAnalysisTool
             return dataset;
         }
 
-        private static void ImportCSVData(string filePath, Dataset dataset)
+        private static void ImportCSVData(string filePath, Dataset dataset, char separator)
         {
             try
             {
                 using var reader = new StreamReader(filePath);
-                string[]? headers = reader.ReadLine()?.Split(',');
+                string[]? headers = reader.ReadLine()?.Split(separator);
 
                 if (headers != null)
                 {
                     dataset.SetHeader(headers);
+                    int id = 0;
                     while (!reader.EndOfStream)
                     {
-                        string[]? values = reader.ReadLine()?.Split(',');
+                        string[]? values = reader.ReadLine()?.Split(separator);
 
                         if (values == null)
                         {
@@ -56,7 +57,7 @@ namespace DataAnalysisTool
                             continue;
                         }
 
-                        DataObject dataObject = new();
+                        DataObject dataObject = new(id);
 
                         for (int i = 0; i < headers.Length; i++)
                         {
@@ -67,6 +68,8 @@ namespace DataAnalysisTool
                         }
 
                         dataset.AddData(dataObject);
+
+                        id++;
                     }
                 }
             }
@@ -85,9 +88,10 @@ namespace DataAnalysisTool
 
                 if (dataObjects != null && dataObjects.Count > 0)
                 {
+                    int id = 0;
                     foreach (var dataObject in dataObjects)
                     {
-                        DataObject newDataObject = new();
+                        DataObject newDataObject = new(id);
 
                         foreach (var columnValue in dataObject)
                         {
@@ -95,6 +99,8 @@ namespace DataAnalysisTool
                         }
 
                         dataset.AddData(newDataObject);
+                       
+                        ++id;
                     }
                 }                
             }

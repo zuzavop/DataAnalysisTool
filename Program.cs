@@ -1,4 +1,6 @@
-﻿namespace DataAnalysisTool
+﻿using System.Net.Http;
+
+namespace DataAnalysisTool
 {
     internal class Program
     {
@@ -11,7 +13,7 @@
             }
             
             DataAnalyzer analyzer = new();
-            analyzer.Run(args[0]);
+            analyzer.Run(args[0], args[1..]);
         }
     }
 }

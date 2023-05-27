@@ -128,7 +128,7 @@
             return numericColumns;
         }
 
-        internal List<double> GetNumericColumnValues(string columnName)
+        public List<double> GetNumericColumnValues(string columnName)
         {
             if (columnName.Contains(columnName) && GetNumericColumns().Contains(columnName))
             {
@@ -146,6 +146,22 @@
             }
 
             return new List<double>();
+        }
+
+        public void AddDataset(Dataset new_data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SortByColumn(string columnName)
+        {
+            if (!columnName.Contains(columnName))
+            {
+                Console.WriteLine($"Column '{columnName}' does not exist.");
+                return;
+            }
+
+            data = data.OrderBy(row => row.GetColumnValue(columnName)).ToList();
         }
     }
 

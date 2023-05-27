@@ -18,14 +18,14 @@ namespace DataAnalysisTool
             string fileExtension = Path.GetExtension(filePath);
             switch (fileExtension.ToLower())
             {
-                case "csv":
+                case ".csv":
                     ExportToCSV(filePath);
                     break;
-                case "json":
+                case ".json":
                     ExportToJSON(filePath);
                     break;
                 default:
-                    throw new NotSupportedException($"Data export to file format '{fileExtension}' is not supported.");
+                    throw new DataAnalysisException($"Data export to file format '{fileExtension}' is not supported.");
             }
         }
 
@@ -60,7 +60,7 @@ namespace DataAnalysisTool
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error exporting data to CSV: {ex.Message}");
+                throw new DataAnalysisException($"Error exporting data to CSV: {ex.Message}");
             }
         }
 
@@ -73,7 +73,7 @@ namespace DataAnalysisTool
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error exporting data to JSON: {ex.Message}");
+                throw new DataAnalysisException($"Error exporting data to JSON: {ex.Message}");
             }
         }
     }
