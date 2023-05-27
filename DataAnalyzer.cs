@@ -69,6 +69,11 @@ namespace DataAnalysisTool
                 HelpText = "Clean dataset. Remove rows with missing values and normalize columns with number values.",
                 HelpParams = Array.Empty<string>()
             });
+            commands.Add("remove_duplicates", new AnalyzeFunc(processor.RemoveDuplicates, 0)
+            {
+                HelpText = "Remove duplicates from dataset.",
+                HelpParams = Array.Empty<string>()
+            });
             commands.Add("append", new AnalyzeFunc(processor.AppendNewData, 1)
             {
                 HelpText = "Append data from another file to end of dataset. Pick only column that are already in dataset.",
@@ -77,7 +82,7 @@ namespace DataAnalysisTool
             commands.Add("statistic", new AnalyzeFunc(processor.PerformCalculations, 2)
             {
                 HelpText = "Show statistic of column.",
-                HelpParams = new string[] { "column name", "mean|median|deviation|entropy|all" }
+                HelpParams = new string[] { "column name", "mean|median|deviation|entropy|mode|all" }
             });
             commands.Add("correlation", new AnalyzeFunc(processor.CalculateColumnCorrelation, 2)
             {
@@ -178,7 +183,7 @@ namespace DataAnalysisTool
                 Console.WriteLine($" - {analyzeFunc.HelpText}");
                 Console.WriteLine();
             }
-            Console.WriteLine("  exit - Exit.");
+            Console.WriteLine("  exit - End Data Analysis Tool.");
         }
 
         private class AnalyzeFunc

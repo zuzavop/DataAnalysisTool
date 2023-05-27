@@ -12,6 +12,8 @@ namespace DataAnalysisTool
         }
         public void PerformCalculations(string columnName, string calculation)
         {
+            ControlColumnName(columnName);
+
             // Perform calculations based on the specified operations
             switch (calculation.ToLower())
             {
@@ -31,6 +33,10 @@ namespace DataAnalysisTool
                     double entropy = CalculateColumnEntropy(columnName);
                     Console.WriteLine($"Entropy of column {columnName}: {entropy}");
                     break;
+                case "mode":
+                    string mode = CalculateColumnMode(columnName);
+                    Console.WriteLine($"Mode od column {columnName}: {mode}");
+                    break;
                 case "all":
                     var values = CalculateColumnStatistics(columnName);
                     foreach (var value in values)
@@ -39,7 +45,7 @@ namespace DataAnalysisTool
                     }
                     break;
                 default:
-                    throw new DataAnalysisException($"Calculation '{calculation}' is not supported.");
+                    throw new ProcessDatasetException($"Calculation '{calculation}' is not supported.");
             }
         }
 
@@ -71,14 +77,47 @@ namespace DataAnalysisTool
                 }
             }
 
-            if (values.Count < 2)
+            if (values.Count == 0)
             {
                 return 0;
+            } else if (values.Count == 1)
+            {
+                return values[0];
             }
+
             // Convert the string values to double and calculate the median
             double mid = (values.Count - 1) / 2.0;
             double median = (values.ElementAt((int)(mid)) + values.ElementAt((int)(mid + 0.5))) / 2;
             return median;
+        }
+
+        private string CalculateColumnMode(string columnName)
+        {
+            List<double> values = new();
+            Dictionary<string, int> valueCounts = new();
+
+            foreach (DataObject dataObject in _dataset.GetData())
+            {
+                string? value = dataObject.GetColumnValue(columnName);
+                if (value != null)
+                {
+                    if (valueCounts.ContainsKey(value))
+                        valueCounts[value]++;
+                    else
+                        valueCounts[value] = 1;
+                }
+            }
+
+            int maxCount = valueCounts.Values.Max();
+            List<string> modes = valueCounts.Where(kv => kv.Value == maxCount).Select(kv => kv.Key).ToList();
+
+            if (modes.Count == 0)
+                throw new ProcessDatasetException("No mode found.");
+
+            if (modes.Count > 1)
+                throw new ProcessDatasetException("Multiple modes found.");
+
+            return modes[0];
         }
 
         private double CalculateStandardDeviation(string columnName)
@@ -142,6 +181,9 @@ namespace DataAnalysisTool
 
         public void CalculateColumnCorrelation(string column1Name, string column2Name)
         {
+            ControlColumnName(column1Name);
+            ControlColumnName(column2Name);
+
             List<double> values1 = new();
             List<double> values2 = new();
 
@@ -162,7 +204,7 @@ namespace DataAnalysisTool
         {
             if (values1.Count != values2.Count)
             {
-                throw new DataAnalysisException("The number of values in both lists must be the same.");
+                throw new ProcessDatasetException("The number of values in both lists must be the same.");
             }
 
             int n = values1.Count;
@@ -183,10 +225,10 @@ namespace DataAnalysisTool
             return numerator / denominator;
         }
 
-        public void ApplyFilters(string column, string value)
+        public void ApplyFilters(string columnName, string value)
         {
             // Filter the Dataset based on the specified column and value
-            _dataset.FilterByColumnValue(column, value);
+            _dataset.FilterByColumnValue(columnName, value);
         }
 
         public void CleanAndPreprocessData()
@@ -203,16 +245,22 @@ namespace DataAnalysisTool
             }
         }
 
-        public void FindOutliers(string column)
+        public void RemoveDuplicates()
         {
+            _dataset.RemoveDuplicates();
+        }
+
+        public void FindOutliers(string columnName)
+        {
+            ControlColumnName(columnName);
             Dictionary<int, double> outliers = new();
 
-            double mean = CalculateMean(column);
-            double standardDeviation = CalculateStandardDeviation(column);
+            double mean = CalculateMean(columnName);
+            double standardDeviation = CalculateStandardDeviation(columnName);
 
             foreach (DataObject dataObject in _dataset.GetData())
             {
-                if (dataObject.TryGetNumericValue(column, out double value))
+                if (dataObject.TryGetNumericValue(columnName, out double value))
                 {
                     double zScore = (value - mean) / standardDeviation;
 
@@ -269,6 +317,31 @@ namespace DataAnalysisTool
         public void SortColumn(string columnName)
         {
             _dataset.SortByColumn(columnName);
+        }
+
+        private void ControlColumnName(string columnName)
+        {
+            if (!_dataset.GetColumnsNames().Contains(columnName))
+            {
+                throw new ProcessDatasetException($"Current dataset doesn't contain column with name {columnName}.");
+            }
+        }
+    }
+
+    class ProcessDatasetException : DataAnalysisException
+    {
+        public ProcessDatasetException()
+        {
+        }
+
+        public ProcessDatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public ProcessDatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }

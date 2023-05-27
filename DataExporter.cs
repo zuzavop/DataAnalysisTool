@@ -25,7 +25,7 @@ namespace DataAnalysisTool
                     ExportToJSON(filePath);
                     break;
                 default:
-                    throw new DataAnalysisException($"Data export to file format '{fileExtension}' is not supported.");
+                    throw new ExporterDatasetException($"Data export to file format '{fileExtension}' is not supported.");
             }
         }
 
@@ -60,7 +60,7 @@ namespace DataAnalysisTool
             }
             catch (Exception ex)
             {
-                throw new DataAnalysisException($"Error exporting data to CSV: {ex.Message}");
+                throw new ExporterDatasetException($"Error exporting data to CSV: {ex.Message}");
             }
         }
 
@@ -89,8 +89,25 @@ namespace DataAnalysisTool
             }
             catch (Exception ex)
             {
-                throw new DataAnalysisException($"Error exporting data to JSON: {ex.Message}");
+                throw new ExporterDatasetException($"Error exporting data to JSON: {ex.Message}");
             }
+        }
+    }
+
+    class ExporterDatasetException : DataAnalysisException
+    {
+        public ExporterDatasetException()
+        {
+        }
+
+        public ExporterDatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public ExporterDatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }

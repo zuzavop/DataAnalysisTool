@@ -82,18 +82,18 @@ namespace DataAnalysisTool
             string fileExtension = Path.GetExtension(inputPath);
             if (!fileExtension.Equals(".csv"))
             {
-                throw new DataAnalysisException($"Input file should be with extension .csv. Extension {fileExtension} is not yet supported. You can use export command.");
+                throw new VisualizationDatasetException($"Input file should be with extension .csv. Extension {fileExtension} is not yet supported. You can use export command.");
             }
 
             if (!_dataset.GetColumnsNames().Contains(columnName1) || !_dataset.GetColumnsNames().Contains(columnName2))
             {
-                throw new DataAnalysisException("Dataset doesn't contains column of name you pick.");
+                throw new VisualizationDatasetException("Dataset doesn't contains column of name you pick.");
             }
 
             fileExtension = Path.GetExtension(outputFilePath);
             if (!fileExtension.Equals(".png"))
             {
-                throw new DataAnalysisException($"Output file should be with extension .png. Extension {fileExtension} is not supported.");
+                throw new VisualizationDatasetException($"Output file should be with extension .png. Extension {fileExtension} is not supported.");
             }
 
             // Invoke the Python script
@@ -107,6 +107,23 @@ namespace DataAnalysisTool
 
             Process? process = Process.Start(psi);
             process?.WaitForExit();
+        }
+    }
+
+    class VisualizationDatasetException : DataAnalysisException
+    {
+        public VisualizationDatasetException()
+        {
+        }
+
+        public VisualizationDatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public VisualizationDatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }

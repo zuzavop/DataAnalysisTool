@@ -45,9 +45,9 @@
         {
             if (!_dataset.GetColumnsNames().Contains(columnName))
             {
-                Console.WriteLine($"Current dataset doesn't contain column with name {columnName}.");
-                return;
+                throw new ExploreDatasetException($"Current dataset doesn't contain column with name {columnName}.");
             }
+
             Console.WriteLine($"Analyzing Column: {columnName}");
 
             int count = CountColumnValues(columnName);
@@ -111,6 +111,23 @@
             }
 
             return valueOccurrences;
+        }
+    }
+
+    class ExploreDatasetException : DataAnalysisException
+    {
+        public ExploreDatasetException()
+        {
+        }
+
+        public ExploreDatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public ExploreDatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }

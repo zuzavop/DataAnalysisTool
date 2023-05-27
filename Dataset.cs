@@ -1,4 +1,6 @@
-﻿namespace DataAnalysisTool
+﻿using System.Data;
+
+namespace DataAnalysisTool
 {
     class Dataset
     {
@@ -51,9 +53,13 @@
             return columnsNames;
         }
 
-        public void FilterByColumnValue(string column, string value)
+        public void FilterByColumnValue(string columnName, string value)
         {
-            data = data.Where(dataObject => dataObject.HasColumnValue(column, value)).ToList();
+            if (!columnName.Contains(columnName))
+            {
+                throw new DatasetException($"Column '{columnName}' does not exist.");
+            }
+            data = data.Where(dataObject => dataObject.HasColumnValue(columnName, value)).ToList();
         }
 
         public void FilterByColumnValue(Func<DataObject, bool> f)
@@ -63,9 +69,13 @@
                                       select d);
         }
 
-        public Dataset GetFilterDataset(string column, string value)
+        public Dataset GetFilterDataset(string columnName, string value)
         {
-            List<DataObject> new_data = data.Where(dataObject => dataObject.HasColumnValue(column, value)).ToList();
+            if (!columnName.Contains(columnName))
+            {
+                throw new DatasetException($"Column '{columnName}' does not exist.");
+            }
+            List<DataObject> new_data = data.Where(dataObject => dataObject.HasColumnValue(columnName, value)).ToList();
             return new Dataset(new_data, columnsNames);
         }
 
@@ -84,6 +94,11 @@
 
         public void NormalizeColumn(string columnName)
         {
+            if (!columnName.Contains(columnName))
+            {
+                throw new DatasetException($"Column '{columnName}' does not exist.");
+            }
+
             List<double> values = new();
 
             foreach (DataObject dataObject in data)
@@ -135,7 +150,12 @@
 
         public List<double> GetNumericColumnValues(string columnName)
         {
-            if (columnName.Contains(columnName) && GetNumericColumns().Contains(columnName))
+            if (!columnName.Contains(columnName))
+            {
+                throw new DatasetException($"Column '{columnName}' does not exist.");
+            }
+
+            if (GetNumericColumns().Contains(columnName))
             {
                 List<double> columnValues = new();
 
@@ -155,18 +175,39 @@
 
         public void AddDataset(Dataset new_data)
         {
-            throw new NotImplementedException();
+            foreach (DataObject dataObject in data)
+            {
+                AddData(dataObject);
+            }
         }
 
         public void SortByColumn(string columnName)
         {
             if (!columnName.Contains(columnName))
             {
-                Console.WriteLine($"Column '{columnName}' does not exist.");
-                return;
+                throw new DatasetException($"Column '{columnName}' does not exist.");
             }
 
             data = data.OrderBy(row => row.GetColumnValue(columnName)).ToList();
+        }
+
+        public void RemoveDuplicates()
+        {
+            HashSet<string> uniqueRows = new();
+
+            foreach (var row in data)
+            {
+                var rowValues = String.Join(",", row.columnValuePairs.Values.ToList());
+                
+                if (rowValues == null || uniqueRows.Contains(rowValues))
+                {
+                    RemoveData(row);
+                }
+                else
+                {
+                    uniqueRows.Add(rowValues);
+                }
+            }
         }
     }
 
@@ -241,6 +282,23 @@
             }
 
             return values;
+        }
+    }
+
+    class DatasetException : DataAnalysisException
+    {
+        public DatasetException()
+        {
+        }
+
+        public DatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public DatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }
