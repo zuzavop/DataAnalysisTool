@@ -77,7 +77,7 @@ namespace DataAnalysisTool
             CreateAndSavePlot(outputFilePath, columnName1, columnName2, "histogram");
         }
 
-        private void CreateAndSavePlot(string outputFilePath, string columnName1, string columnName2, string pythonName)
+        private void CreateAndSavePlot(string outputFilePath, string columnName1, string columnName2, string plotName)
         {
             string fileExtension = Path.GetExtension(inputPath);
             if (!fileExtension.Equals(".csv"))
@@ -100,16 +100,13 @@ namespace DataAnalysisTool
             ProcessStartInfo psi = new()
             {
                 FileName = "python", // Assumes Python is in the system PATH
-                Arguments = $"{pythonName}.py {inputPath} {columnName1} {columnName2} {outputFilePath}",
+                Arguments = $"plot.py {plotName} {inputPath} {columnName1} {columnName2} {outputFilePath}",
                 RedirectStandardOutput = true,
                 UseShellExecute = false
             };
 
             Process? process = Process.Start(psi);
             process?.WaitForExit();
-
-            // Optionally, read the output from the Python script
-            string? output = process?.StandardOutput.ReadToEnd();
         }
     }
 }
