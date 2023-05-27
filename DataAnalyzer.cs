@@ -17,7 +17,7 @@ namespace DataAnalysisTool
         {
             if (LoadDataset(filePath, options))
             {
-                SetCommand();
+                SetCommand(filePath);
                 ProcessCommand();
             }
         }
@@ -37,11 +37,11 @@ namespace DataAnalysisTool
             return true;
         }
 
-        private void SetCommand()
+        private void SetCommand(string filePath)
         {
             DataExporter exporter = new(inputDataset);
             DataProcessor processor = new(inputDataset);
-            DataVisualizer visualizer = new(inputDataset);
+            DataVisualizer visualizer = new(inputDataset, filePath);
             DatasetExplorer explorer = new(inputDataset);
 
             commands.Add("explore", new AnalyzeFunc(explorer.ExploreDataset, 1, true)
@@ -89,30 +89,30 @@ namespace DataAnalysisTool
                 HelpText = "Find outliers in column if the column contains numberical values.",
                 HelpParams = new string[] { "column name" }
             });
-            commands.Add("bar_plot", new AnalyzeFunc(visualizer.CreateAndSaveBarPlot, 1)
+            commands.Add("bar_plot", new AnalyzeFunc(visualizer.CreateAndSaveBarPlot, 3)
             {
-                HelpText = "Export bar plot created from data of columns.",
-                HelpParams = new string[] { "column name" }
+                HelpText = "Export bar plot created from selected colums from input file data.",
+                HelpParams = new string[] { "output file path", "column name", "column name" }
             });
-            commands.Add("line_plot", new AnalyzeFunc(visualizer.CreateAndSaveLinePlot, 1)
+            commands.Add("line_plot", new AnalyzeFunc(visualizer.CreateAndSaveLinePlot, 3)
             {
-                HelpText = "Export line plot created from data of columns.",
-                HelpParams = new string[] { "column name" }
+                HelpText = "Export line plot created from selected colums from input file data.",
+                HelpParams = new string[] { "output file path", "column name", "column name" }
             });
-            commands.Add("scatter_plot", new AnalyzeFunc(visualizer.CreateAndSaveScatterPlot, 1)
+            commands.Add("scatter_plot", new AnalyzeFunc(visualizer.CreateAndSaveScatterPlot, 3)
             {
-                HelpText = "Export scatter plot created from data of columns.",
-                HelpParams = new string[] { "column name" }
+                HelpText = "Export scatter plot created from selected colums from input file data.",
+                HelpParams = new string[] { "output file path", "column name", "column name" }
             });
-            commands.Add("histogram", new AnalyzeFunc(visualizer.CreateAndSaveHistogram, 1)
+            commands.Add("histogram", new AnalyzeFunc(visualizer.CreateAndSaveHistogram, 3)
             {
-                HelpText = "Export histogram created from data of columns.",
-                HelpParams = new string[] { "column name" }
+                HelpText = "Export histogram created from selected colums from input file data.",
+                HelpParams = new string[] { "output file path", "column name", "column name" }
             });
-            commands.Add("pie_plot", new AnalyzeFunc(visualizer.CreateAndSavePiePlot, 1)
+            commands.Add("pie_plot", new AnalyzeFunc(visualizer.CreateAndSavePiePlot, 3)
             {
-                HelpText = "Export pie plot created from data of columns.",
-                HelpParams = new string[] { "column name" }
+                HelpText = "Export pie plot created from selected colums from input file data.",
+                HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("sort", new AnalyzeFunc(processor.SortColumn, 1)
             {
