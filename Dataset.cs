@@ -59,8 +59,8 @@
         public void FilterByColumnValue(Func<DataObject, bool> f)
         {
             data = (List<DataObject>)(from d in data
-                   where f(d)
-                   select d);
+                                      where f(d)
+                                      select d);
         }
 
         public Dataset GetFilterDataset(string column, string value)
@@ -72,8 +72,8 @@
         public Dataset GetFilterDataset(Func<DataObject, bool> f)
         {
             List<DataObject> new_data = (List<DataObject>)(from d in data
-                                      where f(d)
-                                      select d);
+                                                           where f(d)
+                                                           select d);
             return new Dataset(new_data, columnsNames);
         }
 

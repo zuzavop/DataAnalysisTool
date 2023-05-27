@@ -9,7 +9,7 @@ namespace DataAnalysisTool
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException($"File {filePath} not found.");
+                throw new ImportDatasetException($"File {filePath} not found.");
             }
 
             Dataset dataset = new();
@@ -25,7 +25,7 @@ namespace DataAnalysisTool
                     ImportJSONData(filePath, dataset);
                     break;
                 default:
-                    throw new NotSupportedException($"Data import from file format '{fileExtension}' is not supported.");
+                    throw new ImportDatasetException($"Data import from file format '{fileExtension}' is not supported.");
             }
 
             return dataset;
@@ -75,7 +75,7 @@ namespace DataAnalysisTool
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"Error importing CSV data: {ex.Message}");
+                throw new ImportDatasetException($"Error importing CSV data: {ex.Message}");
             }
         }
 
@@ -103,15 +103,36 @@ namespace DataAnalysisTool
                         }
 
                         dataset.AddData(newDataObject);
-                       
+
                         ++id;
                     }
-                }                
+                }
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"Error importing JSON data: {ex.Message}");
+                throw new ImportDatasetException($"Error importing JSON data: {ex.Message}");
             }
+            catch (JsonSerializationException)
+            {
+                throw new ImportDatasetException("Unsupport structure of JSON file. More in documentation of project.");
+            }
+        }
+    }
+
+    class ImportDatasetException : DataAnalysisException
+    {
+        public ImportDatasetException()
+        {
+        }
+
+        public ImportDatasetException(string message)
+            : base(message)
+        {
+        }
+
+        public ImportDatasetException(string message, Exception inner)
+            : base(message, inner)
+        {
         }
     }
 }

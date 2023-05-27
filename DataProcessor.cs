@@ -33,7 +33,7 @@ namespace DataAnalysisTool
                     break;
                 case "all":
                     var values = CalculateColumnStatistics(columnName);
-                    foreach(var value in values)
+                    foreach (var value in values)
                     {
                         Console.WriteLine($"{value.Key} of column {columnName}: {value.Value}");
                     }
@@ -140,59 +140,14 @@ namespace DataAnalysisTool
             return entropy;
         }
 
-        public double CalculateColumnDistance(string column, string value1, string value2)
+        public void CalculateColumnCorrelation(string column1Name, string column2Name)
         {
-            List<DataObject> dataObjects = _dataset.GetData();
-            List<double> distances = new();
-
-            string? value;
-            foreach (DataObject dataObject in dataObjects)
-            {
-                if ((value = dataObject.GetColumnValue(column)) != null)
-                {
-                    if (value == value1 || value == value2)
-                    {
-                        double distance = CalculateObjectDistance(dataObject);
-                        distances.Add(distance);
-                    }
-                }
-            }
-
-            return distances.Average();
-        }
-
-        private static double CalculateObjectDistance(DataObject dataObject)
-        {
-            List<double> values = new();
-
-            // Assuming the dataObject has numeric columns
-            foreach (double value in dataObject.GetNumericValues())
-            {
-                values.Add(value);
-            }
-
-            // Euclidean distance calculation
-            double squaredSum = 0;
-
-            foreach (double value in values)
-            {
-                squaredSum += Math.Pow(value, 2);
-            }
-
-            return Math.Sqrt(squaredSum);
-        }
-
-        public Dictionary<string, double> CalculateColumnCorrelation(string column1, string column2)
-        {
-            Dictionary<string, double> correlationResult = new();
-
-            List<DataObject> dataObjects = _dataset.GetData();
             List<double> values1 = new();
             List<double> values2 = new();
 
-            foreach (DataObject dataObject in dataObjects)
+            foreach (DataObject dataObject in _dataset.GetData())
             {
-                if (dataObject.TryGetNumericValue(column1, out double value1) && dataObject.TryGetNumericValue(column2, out double value2))
+                if (dataObject.TryGetNumericValue(column1Name, out double value1) && dataObject.TryGetNumericValue(column2Name, out double value2))
                 {
                     values1.Add(value1);
                     values2.Add(value2);
@@ -200,9 +155,7 @@ namespace DataAnalysisTool
             }
 
             double correlation = CalculatePearsonCorrelation(values1, values2);
-            correlationResult["Pearson Correlation"] = correlation;
-
-            return correlationResult;
+            Console.WriteLine($"Pearson Correlation of column {column1Name} and column {column2Name}: {correlation}");
         }
 
         private static double CalculatePearsonCorrelation(List<double> values1, List<double> values2)
@@ -250,33 +203,29 @@ namespace DataAnalysisTool
             }
         }
 
-        public List<int> FindOutliers(string column, double threshold)
+        public void FindOutliers(string column)
         {
-            List<DataObject> dataObjects = _dataset.GetData();
-            List<int> outliers = new();
-
-            if (!dataObjects.Any())
-            {
-                return outliers;
-            }
+            Dictionary<int, double> outliers = new();
 
             double mean = CalculateMean(column);
             double standardDeviation = CalculateStandardDeviation(column);
 
-            foreach (DataObject dataObject in dataObjects)
+            foreach (DataObject dataObject in _dataset.GetData())
             {
                 if (dataObject.TryGetNumericValue(column, out double value))
                 {
                     double zScore = (value - mean) / standardDeviation;
 
-                    if (Math.Abs(zScore) > threshold)
+                    if (Math.Abs(zScore) > 1)
                     {
-                        outliers.Add(dataObject.Id);
+                        outliers.Add(dataObject.Id, value);
                     }
                 }
             }
-
-            return outliers;
+            foreach (var o in outliers)
+            {
+                Console.WriteLine($"line {o.Key}: {o.Value}");
+            }
         }
 
         private Dictionary<string, double> CalculateColumnStatistics(string columnName)

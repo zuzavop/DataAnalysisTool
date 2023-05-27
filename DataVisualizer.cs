@@ -47,21 +47,6 @@
             Console.WriteLine(string.Join("\t", values));
         }
 
-        private void CreateAndSavePlot(string xColumn, string yColumn, string savePath)
-        {
-            // Get the data for the specified columns
-            List<double> xValues = _dataset.GetNumericColumnValues(xColumn);
-            List<double> yValues = _dataset.GetNumericColumnValues(yColumn);
-
-            if (xValues.Count == 0 || yValues.Count == 0)
-            {
-                Console.WriteLine("One of column name aren't from dataset or column doesn't contain numeric values.");
-                return;
-            }
-
-            // TODO
-        }
-
         public void CreateAndSaveLinePlot()
         {
 

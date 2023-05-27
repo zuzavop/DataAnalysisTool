@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace DataAnalysisTool
 {
@@ -28,7 +27,8 @@ namespace DataAnalysisTool
             try
             {
                 inputDataset = DataImporter.ImportData(filePath);
-            } catch (Exception ex) when (ex is NotSupportedException || ex is IOException)
+            }
+            catch (DataAnalysisException ex)
             {
                 Console.WriteLine(ex.Message);
                 return false;
@@ -47,7 +47,7 @@ namespace DataAnalysisTool
             commands.Add("explore", new AnalyzeFunc(explorer.ExploreDataset, 1, true)
             {
                 HelpText = "Show overall statistic about whole dataset of about one column.",
-                HelpParams = new string[] {"column name"}
+                HelpParams = new string[] { "column name" }
             });
             commands.Add("export", new AnalyzeFunc(exporter.ExportData, 1)
             {
@@ -62,22 +62,32 @@ namespace DataAnalysisTool
             commands.Add("filter", new AnalyzeFunc(processor.ApplyFilters, 2)
             {
                 HelpText = "Filter column by value.",
-                HelpParams = new string[] { "column name", "value"}
+                HelpParams = new string[] { "column name", "value" }
             });
             commands.Add("clean", new AnalyzeFunc(processor.CleanAndPreprocessData, 0)
             {
-                HelpText = "Clean dataset.",
+                HelpText = "Clean dataset. Remove rows with missing values and normalize columns with number values.",
                 HelpParams = Array.Empty<string>()
             });
             commands.Add("append", new AnalyzeFunc(processor.AppendNewData, 1)
             {
                 HelpText = "Append data from another file to end of dataset. Pick only column that are already in dataset.",
-                HelpParams = new string[] {"file path"}
+                HelpParams = new string[] { "file path" }
             });
             commands.Add("statistic", new AnalyzeFunc(processor.PerformCalculations, 2)
             {
                 HelpText = "Show statistic of column.",
                 HelpParams = new string[] { "column name", "mean|median|deviation|entropy|all" }
+            });
+            commands.Add("correlation", new AnalyzeFunc(processor.CalculateColumnCorrelation, 2)
+            {
+                HelpText = "Show Pearson correlation of two columns.",
+                HelpParams = new string[] { "column name", "column name" }
+            });
+            commands.Add("outliers", new AnalyzeFunc(processor.FindOutliers, 1)
+            {
+                HelpText = "Find outliers in column if the column contains numberical values.",
+                HelpParams = new string[] { "column name" }
             });
             commands.Add("bar_plot", new AnalyzeFunc(visualizer.CreateAndSaveBarPlot, 1)
             {
@@ -179,7 +189,7 @@ namespace DataAnalysisTool
             public string? HelpText { get; set; }
             public string[]? HelpParams { get; set; }
 
-            public AnalyzeFunc(Delegate func, int numberParams, bool optinal=false)
+            public AnalyzeFunc(Delegate func, int numberParams, bool optinal = false)
             {
                 this.func = func;
                 this.canBeOptional = optinal;
@@ -195,7 +205,7 @@ namespace DataAnalysisTool
                         if (canBeOptional && args.Length == 0)
                         {
                             func.DynamicInvoke("");
-                        } 
+                        }
                         else if (canBeOptional && args.Length == (NumberParams - 1))
                         {
                             func.DynamicInvoke(args, "");
@@ -204,13 +214,14 @@ namespace DataAnalysisTool
                         {
                             func.DynamicInvoke(args);
                         }
-                    } 
+                    }
                     catch (TargetInvocationException ex)
                     {
                         if (ex.InnerException is DataAnalysisException)
                         {
                             Console.WriteLine(ex.InnerException.Message);
-                        } else
+                        }
+                        else
                         {
                             if (ex.InnerException == null)
                                 throw ex;

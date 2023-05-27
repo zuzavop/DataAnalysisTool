@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace DataAnalysisTool
+﻿namespace DataAnalysisTool
 {
     internal class Program
     {
@@ -11,7 +9,7 @@ namespace DataAnalysisTool
                 Console.WriteLine("Please provide the input filename as a command-line argument.");
                 return;
             }
-            
+
             DataAnalyzer analyzer = new();
             analyzer.Run(args[0], args[1..]);
         }

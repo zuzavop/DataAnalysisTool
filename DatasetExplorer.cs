@@ -8,12 +8,13 @@
             _dataset = dataset;
         }
 
-        public void ExploreDataset(string columnName="")
+        public void ExploreDataset(string columnName = "")
         {
             if (columnName == "")
             {
                 ExploreDataset();
-            } else
+            }
+            else
             {
                 ExploreColumn(columnName);
             }
@@ -26,14 +27,15 @@
 
             Console.Write("Available Columns:");
             var columnsNames = GetAvailableColumns();
-            if (columnsNames.Length > 0 )
+            if (columnsNames.Length > 0)
             {
                 foreach (string column in columnsNames)
                 {
                     Console.Write(column + " ");
                 }
                 Console.WriteLine();
-            } else
+            }
+            else
             {
                 Console.WriteLine("[]");
             }

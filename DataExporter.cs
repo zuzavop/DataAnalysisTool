@@ -1,7 +1,6 @@
 ﻿using CsvHelper;
 using Newtonsoft.Json;
 using System.Globalization;
-using System.Net.Http.Json;
 
 namespace DataAnalysisTool
 {
@@ -77,7 +76,8 @@ namespace DataAnalysisTool
                     if (i > 0)
                     {
                         writer.WriteLine(",");
-                    } else
+                    }
+                    else
                     {
                         ++i;
                     }
