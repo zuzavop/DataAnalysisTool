@@ -46,7 +46,7 @@ namespace DataAnalysisTool
 
             commands.Add("explore", new AnalyzeFunc(explorer.ExploreDataset, 1, true)
             {
-                HelpText = "Explore the dataset.",
+                HelpText = "Show overall statistic about whole dataset of about one column.",
                 HelpParams = new string[] {"column name"}
             });
             commands.Add("export", new AnalyzeFunc(exporter.ExportData, 1)
@@ -57,63 +57,63 @@ namespace DataAnalysisTool
             commands.Add("show", new AnalyzeFunc(visualizer.PrintAllData, 0)
             {
                 HelpText = "Display all data in the dataset.",
-                HelpParams = new string[0]
+                HelpParams = Array.Empty<string>()
             });
             commands.Add("filter", new AnalyzeFunc(processor.ApplyFilters, 2)
             {
-                HelpText = "",
+                HelpText = "Filter column by value.",
                 HelpParams = new string[] { "column name", "value"}
             });
             commands.Add("clean", new AnalyzeFunc(processor.CleanAndPreprocessData, 0)
             {
-                HelpText = "",
-                HelpParams = new string[0]
+                HelpText = "Clean dataset.",
+                HelpParams = Array.Empty<string>()
             });
             commands.Add("append", new AnalyzeFunc(processor.AppendNewData, 1)
             {
-                HelpText = "",
+                HelpText = "Append data from another file to end of dataset. Pick only column that are already in dataset.",
                 HelpParams = new string[] {"file path"}
             });
             commands.Add("statistic", new AnalyzeFunc(processor.PerformCalculations, 2)
             {
-                HelpText = "",
+                HelpText = "Show statistic of column.",
                 HelpParams = new string[] { "column name", "mean|median|deviation|entropy|all" }
             });
             commands.Add("bar_plot", new AnalyzeFunc(visualizer.CreateAndSaveBarPlot, 1)
             {
-                HelpText = "",
+                HelpText = "Export bar plot created from data of columns.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("line_plot", new AnalyzeFunc(visualizer.CreateAndSaveLinePlot, 1)
             {
-                HelpText = "",
+                HelpText = "Export line plot created from data of columns.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("scatter_plot", new AnalyzeFunc(visualizer.CreateAndSaveScatterPlot, 1)
             {
-                HelpText = "",
+                HelpText = "Export scatter plot created from data of columns.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("histogram", new AnalyzeFunc(visualizer.CreateAndSaveHistogram, 1)
             {
-                HelpText = "",
+                HelpText = "Export histogram created from data of columns.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("pie_plot", new AnalyzeFunc(visualizer.CreateAndSavePiePlot, 1)
             {
-                HelpText = "",
+                HelpText = "Export pie plot created from data of columns.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("sort", new AnalyzeFunc(processor.SortColumn, 1)
             {
-                HelpText = "",
+                HelpText = "Sort dataset by column.",
                 HelpParams = new string[] { "column name" }
             });
 
             commands.Add("help", new AnalyzeFunc(PrintHelp, 0)
             {
                 HelpText = "Print help information for available commands.",
-                HelpParams = new string[0]
+                HelpParams = Array.Empty<string>()
             });
         }
 
@@ -156,12 +156,14 @@ namespace DataAnalysisTool
             foreach (var command in commands)
             {
                 var methodName = command.Key;
+                if (methodName.Equals("help")) continue;
+
                 var analyzeFunc = command.Value;
 
                 Console.Write($"  {methodName} ");
                 for (int i = 0; i < analyzeFunc.NumberParams; i++)
                 {
-                    Console.Write($"[{analyzeFunc.HelpParams[i]}] ");
+                    Console.Write($"[{analyzeFunc.HelpParams?[i]}] ");
                 }
                 Console.WriteLine($" - {analyzeFunc.HelpText}");
                 Console.WriteLine();
@@ -209,6 +211,8 @@ namespace DataAnalysisTool
                             Console.WriteLine(ex.InnerException.Message);
                         } else
                         {
+                            if (ex.InnerException == null)
+                                throw ex;
                             throw ex.InnerException;
                         }
                     }
