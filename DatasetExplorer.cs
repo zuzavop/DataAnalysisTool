@@ -1,13 +1,25 @@
 ﻿namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Represents a dataset explorer for analyzing dataset information and columns.
+    /// </summary>
     class DatasetExplorer
     {
         private readonly Dataset _dataset;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatasetExplorer"/> class.
+        /// </summary>
+        /// <param name="dataset">The dataset to explore.</param>
         public DatasetExplorer(Dataset dataset)
         {
             _dataset = dataset;
         }
 
+        /// <summary>
+        /// Explores the dataset, providing an overview of the dataset information.
+        /// </summary>
+        /// <param name="columnName">The optional column name to explore.</param>
         public void ExploreDataset(string columnName = "")
         {
             if (columnName == "")
@@ -20,6 +32,9 @@
             }
         }
 
+        /// <summary>
+        /// Explores the dataset, providing an overview of the dataset information.
+        /// </summary>
         private void ExploreDataset()
         {
             int totalObjects = _dataset.GetData().Count;
@@ -41,6 +56,10 @@
             }
         }
 
+        /// <summary>
+        /// Explores a specific column in the dataset, providing analysis and statistics.
+        /// </summary>
+        /// <param name="columnName">The name of the column to explore.</param>
         private void ExploreColumn(string columnName)
         {
             if (!_dataset.GetColumnsNames().Contains(columnName))
@@ -61,6 +80,10 @@
             }
         }
 
+        /// <summary>
+        /// Retrieves the available columns in the dataset.
+        /// </summary>
+        /// <returns>An array of available column names.</returns>
         private string[] GetAvailableColumns()
         {
             if (_dataset.GetData().Any())
@@ -73,6 +96,11 @@
             }
         }
 
+        /// <summary>
+        /// Counts the occurrences of each value in the specified column.
+        /// </summary>
+        /// <param name="column">The name of the column.</param>
+        /// <returns>A dictionary containing the value occurrences.</returns>
         private Dictionary<string, int> CountColumnValueOccurrences(string column)
         {
             // Count the occurrences of each value in the specified column
@@ -98,6 +126,9 @@
         }
     }
 
+    /// <summary>
+    /// Represents an exception related to exploring datasets.
+    /// </summary>
     class ExploreDatasetException : DataAnalysisException
     {
         public ExploreDatasetException()

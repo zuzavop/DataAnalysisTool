@@ -2,11 +2,21 @@
 
 namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Represents a data visualizer for generating plots and printing data.
+    /// </summary>
     class DataVisualizer
     {
         private readonly Dataset _dataset;
         private readonly string inputPath;
         private readonly char seperator;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataVisualizer"/> class.
+        /// </summary>
+        /// <param name="dataset">The dataset to visualize.</param>
+        /// <param name="filePath">The path to the input file.</param>
+        /// <param name="seperator">The column separator character.</param>
         public DataVisualizer(Dataset dataset, string filePath, char seperator)
         {
             this._dataset = dataset;
@@ -14,6 +24,9 @@ namespace DataAnalysisTool
             this.seperator = seperator;
         }
 
+        /// <summary>
+        /// Prints all data from the dataset.
+        /// </summary>
         public void PrintAllData()
         {
             string[] columns = _dataset.GetColumnsNames().ToArray();
@@ -21,6 +34,10 @@ namespace DataAnalysisTool
             PrintColumns(columns);
         }
 
+        /// <summary>
+        /// Prints the specified columns to the console.
+        /// </summary>
+        /// <param name="columns">The columns to print.</param>
         private void PrintColumns(string[] columns)
         {
             // Print column headers
@@ -48,6 +65,10 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Prints the specified columns to the console.
+        /// </summary>
+        /// <param name="columns">The columns to print.</param>
         private static void PrintRow(List<string> values)
         {
             foreach(var value in values)
@@ -57,36 +78,78 @@ namespace DataAnalysisTool
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Creates and saves a line plot based on the specified columns.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the first column.</param>
+        /// <param name="columnName2">The name of the second column.</param>
         public void CreateAndSaveLinePlot(string outputFilePath, string columnName1, string columnName2)
         {
             CreateAndSavePlot(outputFilePath, "line_plot", columnName1, columnName2);
         }
 
+        /// <summary>
+        /// Creates and saves a bar plot based on the specified columns.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the first column.</param>
+        /// <param name="columnName2">The name of the second column.</param>
         public void CreateAndSaveBarPlot(string outputFilePath, string columnName1, string columnName2)
         {
             CreateAndSavePlot(outputFilePath, "bar_plot", columnName1, columnName2);
         }
 
+        /// <summary>
+        /// Creates and saves a scatter plot based on the specified columns.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the first column.</param>
+        /// <param name="columnName2">The name of the second column.</param>
         public void CreateAndSaveScatterPlot(string outputFilePath, string columnName1, string columnName2)
         {
             CreateAndSavePlot(outputFilePath, "scatter_plot", columnName1, columnName2);
         }
 
+        /// <summary>
+        /// Creates and saves a pie plot based on the specified column.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the column.</param>
         public void CreateAndSavePiePlot(string outputFilePath, string columnName1)
         {
             CreateAndSavePlot(outputFilePath, "pie_plot", columnName1);
         }
 
+        /// <summary>
+        /// Creates and saves a histogram based on the specified columns.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the first column.</param>
+        /// <param name="columnName2">The name of the second column.</param>
         public void CreateAndSaveHistogram(string outputFilePath, string columnName1, string columnName2)
         {
             CreateAndSavePlot(outputFilePath, "histogram", columnName1, columnName2);
         }
 
+        /// <summary>
+        /// Creates and saves a box plot based on the specified columns.
+        /// </summary>
+        /// <param name="outputFilePath">The path to save the plot image file.</param>
+        /// <param name="columnName1">The name of the first column.</param>
+        /// <param name="columnName2">The name of the second column.</param>
         public void CreateAndSaveBoxPlot(string outputFilePath, string columnName1, string columnName2)
         {
             CreateAndSavePlot(outputFilePath, "box_plot", columnName1, columnName2);
         }
 
+        /// <summary>
+        /// Creates and saves a data plot based on the specified parameters.
+        /// </summary>
+        /// <param name="outputFilePath">The output file path to save the plot.</param>
+        /// <param name="plotName">The name of the plot.</param>
+        /// <param name="columnName1">The name of the first column for plotting.</param>
+        /// <param name="columnName2">The name of the second column for plotting (optional).</param>
         private void CreateAndSavePlot(string outputFilePath, string plotName, string columnName1, string columnName2 ="")
         {
             string fileExtension = Path.GetExtension(inputPath);
@@ -125,6 +188,9 @@ namespace DataAnalysisTool
         }
     }
 
+    /// <summary>
+    /// Represents an exception related to visualization of datasets.
+    /// </summary>
     class VisualizationDatasetException : DataAnalysisException
     {
         public VisualizationDatasetException()

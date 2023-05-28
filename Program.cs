@@ -1,7 +1,14 @@
 ﻿namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Represents the entry point of the Data Analysis Tool program.
+    /// </summary>
     internal class Program
     {
+        /// <summary>
+        /// The main method of the program.
+        /// </summary>
+        /// <param name="args">The command-line arguments.</param>
         static void Main(string[] args)
         {
             if (args.Length == 0)
