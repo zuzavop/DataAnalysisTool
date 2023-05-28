@@ -139,9 +139,10 @@ namespace DataAnalysisTool
                 HelpParams = new string[] { "column name" }
             });
 
-            commands.Add("help", new AnalyzeFunc(PrintHelp)
+            commands.Add("help", new AnalyzeFunc(PrintHelp, 1)
             {
-                HelpText = "Print help information for available commands."
+                HelpText = "Print help information for available commands.",
+                HelpParams = new string[] {"command name"}
             });
         }
 
@@ -178,25 +179,50 @@ namespace DataAnalysisTool
             }
         }
 
-        private void PrintHelp()
+        private void PrintHelp(string commandName="")
         {
-            Console.WriteLine("Available commands:");
-            foreach (var command in commands)
+            if (commandName == "")
             {
-                var methodName = command.Key;
-                if (methodName.Equals("help")) continue;
-
-                var analyzeFunc = command.Value;
-
-                Console.Write($"  {methodName} ");
-                for (int i = 0; i < analyzeFunc.NumberParams; i++)
+                Console.WriteLine("Available commands:");
+                foreach (var command in commands)
                 {
-                    Console.Write($"[{analyzeFunc.HelpParams?[i]}] ");
+                    var methodName = command.Key;
+                    if (methodName.Equals("help")) continue;
+
+                    var analyzeFunc = command.Value;
+
+                    Console.Write($"  {methodName} ");
+                    for (int i = 0; i < analyzeFunc.NumberParams; i++)
+                    {
+                        Console.Write($"[{analyzeFunc.HelpParams?[i]}] ");
+                    }
+                    Console.WriteLine($" - {analyzeFunc.HelpText}");
+                    Console.WriteLine();
                 }
-                Console.WriteLine($" - {analyzeFunc.HelpText}");
-                Console.WriteLine();
+                Console.WriteLine("  exit - End interactive Data Analysis Tool.");
+            } else
+            {
+                if (commands.ContainsKey(commandName))
+                {
+                    var analyzeFunc = commands[commandName];
+
+                    Console.Write($"{commandName} ");
+                    for (int i = 0; i < analyzeFunc.NumberParams; i++)
+                    {
+                        Console.Write($"[{analyzeFunc.HelpParams?[i]}] ");
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine($"  {analyzeFunc.HelpText}");
+                } 
+                else if (commandName.Equals("exit"))
+                {
+                    Console.WriteLine("exit\n  End interactive Data Analysis Tool.");
+                }
+                else
+                {
+                    throw new DataAnalysisException("Invalid command. Please try again or use the 'help' command for more information.");
+                }
             }
-            Console.WriteLine("  exit - End interactive Data Analysis Tool.");
         }
 
         private class AnalyzeFunc
