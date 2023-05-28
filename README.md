@@ -11,6 +11,14 @@ The Data Analysis Tool is a command-line program designed to help users analyze 
         ```
         dotnet build
         ```
+    * Download needed python package:
+        ```
+        pip install -r requirements.txt
+        ```
+
+## Prerequisites
+* Python
+* .NET 6.0
 
 ## Usage
 To run the Data Analysis Tool, open a command prompt or terminal and navigate to the directory where the project is located. After building whole project, use the following command:
@@ -39,7 +47,7 @@ explore [column name]
 ```
 
 ### export
-This command exports the dataset to a file. Specify the file path where you want to save the dataset.
+This command exports the dataset to a CSV or JSON file. Specify the file path where you want to save the dataset.
 
 ```
 export [file path]
@@ -53,13 +61,14 @@ show
 ```
 
 ### filter
-This command filters the dataset by a specific column and value based on the provided condition. Use = for equal, != for not equal, < for less than, > for greater than, => for greater than or equal, =< for less than or equal, and in to check if the column value contains the specified value.
+This command filters the dataset by a specific column and value based on the provided condition. Use `=` for equal, `!=` for not equal, `<` for less than, `>` for greater than, `=>` for greater than or equal, `=<` for less than or equal, and `in` to check if the column value contains the specified value.
 
 ```
 filter [column name] [=|!=|<|>|=>|=<|in] [value]
 ```
 
-#### Example:
+#### Example
+Filter out values in column named `age` that are less or equal to 30:
 ```
 filter age > 30
 ```
@@ -86,7 +95,7 @@ append [file path]
 ```
 
 ### statistic
-This command shows statistics of a specific column. Specify the column name and choose the type of statistic you want to calculate (mean, median, deviation, entropy, mode, or all).
+This command shows statistics of a specific column. Specify the column name and choose the type of statistic you want to calculate (`mean`, `median`, `deviation`, `entropy`, `mode`, or `all`).
 
 ```
 statistic [column name] [mean|median|deviation|entropy|mode|all]
@@ -166,7 +175,7 @@ sort [column name]
 This command prints help information for available commands.
 
 ```
-help
+help [command name]
 ```
 
 ### exit
