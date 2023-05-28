@@ -2,21 +2,32 @@
 
 namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Class responsible for analyzing data and executing commands.
+    /// </summary>
     public class DataAnalyzer
     {
         readonly Dictionary<string, AnalyzeFunc> commands;
         Dataset inputDataset;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataAnalyzer"/> class.
+        /// </summary>
         public DataAnalyzer()
         {
             this.commands = new Dictionary<string, AnalyzeFunc>();
             this.inputDataset = new Dataset();
         }
 
+        /// <summary>
+        /// Runs the Data Analysis Tool with the specified file path and options.
+        /// </summary>
+        /// <param name="filePath">The path to the input file.</param>
+        /// <param name="startProcess">Determines whether to start processing the command automatically.</param>
+        /// <param name="options">Additional command-line options.</param>
         public void Run(string filePath, bool startProcess, params string[] options)
         {
-            char seperator = options.Contains("-s") ? options[Array.IndexOf(options, "-s") + 1][0] :
-                    (options.Contains("--seperator") ? options[Array.IndexOf(options, "--seperator") + 1][0] : ',');
+            char seperator = GetSeparator(options);
             if (LoadDataset(filePath, seperator))
             {
                 SetCommand(filePath, seperator);
@@ -25,6 +36,33 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Gets the separator character from the command-line options.
+        /// </summary>
+        /// <param name="options">Command-line options.</param>
+        /// <returns>The separator character.</returns>
+        private static char GetSeparator(string[] options)
+        {
+            char separator = ',';
+            if (options.Contains("-s"))
+            {
+                int separatorIndex = Array.IndexOf(options, "-s") + 1;
+                separator = options[separatorIndex][0];
+            }
+            else if (options.Contains("--seperator"))
+            {
+                int separatorIndex = Array.IndexOf(options, "--seperator") + 1;
+                separator = options[separatorIndex][0];
+            }
+            return separator;
+        }
+
+        /// <summary>
+        /// Loads the dataset from the specified file path using the provided separator.
+        /// </summary>
+        /// <param name="filePath">The path to the input file.</param>
+        /// <param name="separator">The separator character used in the file.</param>
+        /// <returns><c>true</c> if the dataset was loaded successfully, <c>false</c> otherwise.</returns>
         private bool LoadDataset(string filePath, char seperator)
         {
             try
@@ -40,6 +78,11 @@ namespace DataAnalysisTool
             return true;
         }
 
+        /// <summary>
+        /// Sets up the available commands.
+        /// </summary>
+        /// <param name="filePath">The path to the input file.</param>
+        /// <param name="separator">The separator character used in the file.</param>
         private void SetCommand(string filePath, char seperator)
         {
             DataExporter exporter = new(inputDataset);
@@ -147,6 +190,9 @@ namespace DataAnalysisTool
             });
         }
 
+        /// <summary>
+        /// Processes the user's commands in an interactive manner.
+        /// </summary>
         private void ProcessCommand()
         {
             Console.WriteLine("Dataset was loaded. You can write commands.");
@@ -161,10 +207,15 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Prints the help information for available commands.
+        /// </summary>
+        /// <param name="commandName">The name of the command to get help for (optional).</param>
         private void PrintHelp(string commandName="")
         {
             if (commandName == "")
             {
+                // print help for all commands
                 Console.WriteLine("Available commands:");
                 foreach (var command in commands)
                 {
@@ -184,6 +235,7 @@ namespace DataAnalysisTool
                 Console.WriteLine("  exit - End interactive Data Analysis Tool.");
             } else
             {
+                // print help for selected command
                 if (commands.ContainsKey(commandName))
                 {
                     var analyzeFunc = commands[commandName];
@@ -207,7 +259,11 @@ namespace DataAnalysisTool
             }
         }
 
-        public void ExecuteCommand(string line)
+        /// <summary>
+        /// Executes the specified command line.
+        /// </summary>
+        /// <param name="line">The command line to execute.</param>
+        public void ExecuteCommand(string? line)
         {
             if (line != null)
             {
@@ -231,6 +287,9 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Represents an command with its associated metadata.
+        /// </summary>
         private class AnalyzeFunc
         {
             private readonly Delegate func;
@@ -239,6 +298,11 @@ namespace DataAnalysisTool
             public string HelpText { get; set; }
             public string[] HelpParams { get; set; }
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AnalyzeFunc"/> class.
+            /// </summary>
+            /// <param name="func">The command function delegate.</param>
+            /// <param name="optional">The number of optional parameters for the function.</param>
             public AnalyzeFunc(Delegate func, int optinal = 0)
             {
                 this.func = func;
@@ -248,6 +312,11 @@ namespace DataAnalysisTool
                 this.HelpParams = Array.Empty<string>();
             }
 
+            /// <summary>
+            /// Executes the command function with the specified arguments.
+            /// </summary>
+            /// <param name="args">The arguments to pass to the function.</param>
+            /// <returns><c>true</c> if the function was executed successfully, <c>false</c> otherwise.</returns>
             public bool StartFunc(params string[] args)
             {
                 if (args.Length == NumberParams || args.Length == (NumberParams - canBeOptionalNum))
@@ -296,6 +365,9 @@ namespace DataAnalysisTool
         }
     }
 
+    /// <summary>
+    /// Represents an exception that occurs during data analysis.
+    /// </summary>
     public class DataAnalysisException : Exception
     {
         public DataAnalysisException()
