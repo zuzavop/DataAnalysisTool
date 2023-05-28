@@ -8,6 +8,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataGeneration", "data\DataGeneration\DataGeneration.csproj", "{DB42FDB7-1C1B-469C-B6EC-60499551C8D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "tests\Tests\Tests.csproj", "{1A57738C-45F9-4E9F-B997-D5E6638DEDF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EA705A25-C291-46C1-883A-27DD6DA4221E} = {EA705A25-C291-46C1-883A-27DD6DA4221E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -77,4 +77,9 @@ The key responsibilities of the `DatasetExplorer` include:
 Subproject for gerenating csv files with semi-random data. First argument can be path of output file and second argument can be number of rows in output.
 
 ### Tests
-
+Subproject with few tests on Data Analysis Tool:
+* explore command
+* show command
+* filter command with equal and greater or equal
+* clean command
+* remove_duplicates command

@@ -54,11 +54,15 @@ namespace DataAnalysisTool
             return columnsNames;
         }
 
-        public void FilterByColumnValue(params Func<DataObject, bool>[] functions)
+        public int FilterByColumnValue(params Func<DataObject, bool>[] functions)
         {
-            data = (List<DataObject>)(from d in data
-                                      where functions.All(func => func(d))
-                                      select d);
+            int beforeCount = data.Count;
+            var func = functions.ToList();
+            data = (from d in data
+                        where functions.All(func => func(d))
+                        select d).ToList();
+
+            return beforeCount - data.Count;
         }
 
         public void RemoveRowsWithMissingValues()
@@ -81,6 +85,11 @@ namespace DataAnalysisTool
                 {
                     values.Add(value);
                 }
+            }
+
+            if (values.Count == 0)
+            {
+                return;
             }
 
             double min = values.Min();

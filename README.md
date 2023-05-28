@@ -61,7 +61,7 @@ show
 ```
 
 ### filter
-This command filters the dataset by a specific column and value based on the provided condition. Use `=` for equal, `!=` for not equal, `<` for less than, `>` for greater than, `=>` for greater than or equal, `=<` for less than or equal, and `in` to check if the column value contains the specified value.
+This command filters the dataset by a specific column and value based on the provided condition. Use `=` for equal, `!=` for not equal, `<` for less than, `>` for greater than, `=>` for greater than or equal, `=<` for less than or equal, and `in` to check if the column value contains the specified value. Keeps only rows that match the specified conditions.
 
 ```
 filter [column name] [=|!=|<|>|=>|=<|in] [value]

@@ -258,7 +258,9 @@ namespace DataAnalysisTool
                     ">" => row => row.TryGetNumericValue(columnName, out double val) && val > numericValue,
                     "<" => row => row.TryGetNumericValue(columnName, out double val) && val < numericValue,
                     "=>" => row => row.TryGetNumericValue(columnName, out double val) && val >= numericValue,
+                    ">=" => row => row.TryGetNumericValue(columnName, out double val) && val >= numericValue,
                     "=<" => row => row.TryGetNumericValue(columnName, out double val) && val <= numericValue,
+                    "<=" => row => row.TryGetNumericValue(columnName, out double val) && val <= numericValue,
                     "in" => row => row.GetColumnValue(columnName)?.Contains(value) == true,
                     _ => throw new ProcessDatasetException($"Condition {condition} is not allowed. For possible choices of conditions use the `help` command.")
                 };
@@ -273,12 +275,16 @@ namespace DataAnalysisTool
                     "<" => row => row.GetColumnValue(columnName)?.Length < value.Length,
                     "=>" => row => row.GetColumnValue(columnName)?.Length >= value.Length,
                     "=<" => row => row.GetColumnValue(columnName)?.Length <= value.Length,
+                    ">=" => row => row.GetColumnValue(columnName)?.Length >= value.Length,
+                    "<=" => row => row.GetColumnValue(columnName)?.Length <= value.Length,
                     "in" => row => row.GetColumnValue(columnName)?.Contains(value) == true,
                     _ => throw new ProcessDatasetException($"Condition {condition} is not allowed. For possible choices of conditions use the `help` command.")
                 };
             }
 
-            _dataset.FilterByColumnValue(filter);
+            int filtred = _dataset.FilterByColumnValue(filter);
+            Console.WriteLine($"Filtered data: { filtred } rows.");
+
         }
 
         public void CleanAndPreprocessData()
@@ -293,11 +299,13 @@ namespace DataAnalysisTool
             {
                 _dataset.NormalizeColumn(column);
             }
+            Console.WriteLine("Dataset was cleaned.");
         }
 
         public void RemoveDuplicates()
         {
             _dataset.RemoveDuplicates();
+            Console.WriteLine("Duplicates removed.");
         }
 
         public void FindOutliers(string columnName)
@@ -363,11 +371,13 @@ namespace DataAnalysisTool
         {
             Dataset new_data = DataImporter.ImportData(filePath);
             _dataset.AddDataset(new_data);
+            Console.WriteLine("New dataset was added.");
         }
 
         public void SortColumn(string columnName)
         {
             _dataset.SortByColumn(columnName);
+            Console.WriteLine("Dataset was sorted.");
         }
 
         private void ControlColumnName(string columnName)

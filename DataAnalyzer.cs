@@ -2,7 +2,7 @@
 
 namespace DataAnalysisTool
 {
-    class DataAnalyzer
+    public class DataAnalyzer
     {
         readonly Dictionary<string, AnalyzeFunc> commands;
         Dataset inputDataset;
@@ -13,14 +13,15 @@ namespace DataAnalysisTool
             this.inputDataset = new Dataset();
         }
 
-        public void Run(string filePath, params string[] options)
+        public void Run(string filePath, bool startProcess, params string[] options)
         {
             char seperator = options.Contains("-s") ? options[Array.IndexOf(options, "-s") + 1][0] :
                     (options.Contains("--seperator") ? options[Array.IndexOf(options, "--seperator") + 1][0] : ',');
             if (LoadDataset(filePath, seperator))
             {
                 SetCommand(filePath, seperator);
-                ProcessCommand();
+                if (startProcess)
+                    ProcessCommand();
             }
         }
 
@@ -156,26 +157,7 @@ namespace DataAnalysisTool
                 Console.Write(">> ");
                 line = Console.ReadLine()?.Trim();
 
-                if (line != null)
-                {
-                    string command = line.Split(" ")[0].ToLower();
-                    if (commands.ContainsKey(command))
-                    {
-                        string[] args = line.Split(" ")[1..];
-                        if (!commands[command].StartFunc(args))
-                        {
-                            Console.WriteLine($"Wrong number of parameters for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use the `help` command.");
-                        }
-                    }
-                    else if (command.Equals("exit"))
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid command. Please try again or use the 'help' command for more information.");
-                    }
-                }
+                ExecuteCommand(line);
             }
         }
 
@@ -221,6 +203,30 @@ namespace DataAnalysisTool
                 else
                 {
                     throw new DataAnalysisException("Invalid command. Please try again or use the 'help' command for more information.");
+                }
+            }
+        }
+
+        public void ExecuteCommand(string line)
+        {
+            if (line != null)
+            {
+                string command = line.Split(" ")[0].ToLower();
+                if (commands.ContainsKey(command))
+                {
+                    string[] args = line.Split(" ")[1..];
+                    if (!commands[command].StartFunc(args))
+                    {
+                        Console.WriteLine($"Wrong number of parameters for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use the `help` command.");
+                    }
+                }
+                else if (command.Equals("exit"))
+                {
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid command. Please try again or use the 'help' command for more information.");
                 }
             }
         }

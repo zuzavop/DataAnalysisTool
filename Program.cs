@@ -11,7 +11,7 @@
             }
 
             DataAnalyzer analyzer = new();
-            analyzer.Run(args[0], args[1..]);
+            analyzer.Run(args[0], true, args[1..]);
         }
     }
 }
