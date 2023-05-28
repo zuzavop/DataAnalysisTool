@@ -4,14 +4,27 @@ using System.Data;
 
 namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Class responsible for processing data and performing various calculations and operations on a dataset.
+    /// </summary>
     class DataProcessor
     {
         private readonly Dataset _dataset;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataProcessor"/> class with the specified dataset.
+        /// </summary>
+        /// <param name="dataset">The dataset to be processed.</param>
         public DataProcessor(Dataset dataset)
         {
             _dataset = dataset;
         }
+
+        /// <summary>
+        /// Performs calculations on a specified column of the dataset based on the specified operation.
+        /// </summary>
+        /// <param name="columnName">The name of the column to perform calculations on.</param>
+        /// <param name="calculation">The type of calculation to perform (e.g., mean, median, deviation, entropy, mode, all).</param>
         public void PerformCalculations(string columnName, string calculation)
         {
             ControlColumnName(columnName);
@@ -51,16 +64,25 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Calculates the mean value of a numerical column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the numerical column.</param>
+        /// <returns>The mean value of the specified column.</returns>
         private double CalculateMean(string columnName)
         {
             ControlNumericalColumn(columnName);
             List<double> values = _dataset.GetNumericColumnValues(columnName);
 
-            // Convert the string values to double and calculate the mean
             double mean = values.Average();
             return mean;
         }
 
+        /// <summary>
+        /// Calculates the median value of a numerical column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the numerical column.</param>
+        /// <returns>The median value of the specified column.</returns>
         private double CalculateMedian(string columnName)
         {
             ControlNumericalColumn(columnName);
@@ -76,12 +98,16 @@ namespace DataAnalysisTool
                 return values[0];
             }
 
-            // Convert the string values to double and calculate the median
             double mid = (values.Count - 1) / 2.0;
             double median = (values.ElementAt((int)(mid)) + values.ElementAt((int)(mid + 0.5))) / 2;
             return median;
         }
 
+        // <summary>
+        /// Calculates the mode (most frequent value) of a categorical column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the categorical column.</param>
+        /// <returns>The mode of the specified column.</returns>
         private string CalculateColumnMode(string columnName)
         {
             List<double> values = new();
@@ -111,6 +137,11 @@ namespace DataAnalysisTool
             return modes[0];
         }
 
+        /// <summary>
+        /// Calculates the standard deviation of a numerical column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the numerical column.</param>
+        /// <returns>The standard deviation of the specified column.</returns>
         private double CalculateStandardDeviation(string columnName)
         {
             ControlNumericalColumn(columnName);
@@ -128,6 +159,11 @@ namespace DataAnalysisTool
             return Math.Sqrt(variance);
         }
 
+        /// <summary>
+        /// Calculates the entropy of a categorical column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the categorical column.</param>
+        /// <returns>The entropy of the specified column.</returns>
         private double CalculateColumnEntropy(string columnName)
         {
             List<DataObject> dataObjects = _dataset.GetData();
@@ -163,6 +199,11 @@ namespace DataAnalysisTool
             return entropy;
         }
 
+        /// <summary>
+        /// Performs regression analysis on two specified columns in the dataset.
+        /// </summary>
+        /// <param name="columnName1">The name of the first column for regression analysis.</param>
+        /// <param name="columnName2">The name of the second column for regression analysis.</param>
         public void PerformRegressionAnalysis(string columnName1, string columnName2)
         {
             ControlNumericalColumn(columnName1);
@@ -195,6 +236,11 @@ namespace DataAnalysisTool
             Console.WriteLine($"R-squared: {rSquared}");
         }
 
+        /// <summary>
+        /// Calculates the Pearson correlation coefficient between two specified columns in the dataset.
+        /// </summary>
+        /// <param name="column1Name">The name of the first column for correlation calculation.</param>
+        /// <param name="column2Name">The name of the second column for correlation calculation.</param>
         public void CalculateColumnCorrelation(string column1Name, string column2Name)
         {
             ControlNumericalColumn(column1Name);
@@ -218,6 +264,12 @@ namespace DataAnalysisTool
             Console.WriteLine($"Pearson Correlation of column {column1Name} and column {column2Name}: {correlation}");
         }
 
+        /// <summary>
+        /// Calculates the Pearson correlation coefficient between two lists of values.
+        /// </summary>
+        /// <param name="values1">The first list of values.</param>
+        /// <param name="values2">The second list of values.</param>
+        /// <returns>The Pearson correlation coefficient between the two lists of values.</returns>
         private static double CalculatePearsonCorrelation(List<double> values1, List<double> values2)
         {
             if (values1.Count != values2.Count)
@@ -243,6 +295,12 @@ namespace DataAnalysisTool
             return numerator / denominator;
         }
 
+        /// <summary>
+        /// Applies filters to the dataset based on a specified column, condition, and value.
+        /// </summary>
+        /// <param name="columnName">The name of the column to apply the filter to.</param>
+        /// <param name="condition">The filter condition.</param>
+        /// <param name="value">The value to compare against.</param>
         public void ApplyFilters(string columnName, string condition, string value)
         {
             ControlColumnName(columnName);
@@ -287,6 +345,10 @@ namespace DataAnalysisTool
 
         }
 
+        /// <summary>
+        /// Cleans and preprocesses the data in the dataset by removing rows with missing values
+        /// and normalizing numerical columns.
+        /// </summary>
         public void CleanAndPreprocessData()
         {
             // Clean data by removing any rows with missing values
@@ -302,12 +364,19 @@ namespace DataAnalysisTool
             Console.WriteLine("Dataset was cleaned.");
         }
 
+        /// <summary>
+        /// Removes duplicate rows from the dataset.
+        /// </summary>
         public void RemoveDuplicates()
         {
             _dataset.RemoveDuplicates();
             Console.WriteLine("Duplicates removed.");
         }
 
+        /// <summary>
+        /// Finds outliers in the specified numerical column based on the z-score.
+        /// </summary>
+        /// <param name="columnName">The name of the numerical column to find outliers in.</param>
         public void FindOutliers(string columnName)
         {
             ControlNumericalColumn(columnName);
@@ -335,6 +404,11 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Calculates various statistics for the specified column in the dataset.
+        /// </summary>
+        /// <param name="columnName">The name of the column to calculate statistics for.</param>
+        /// <returns>A dictionary containing the calculated statistics.</returns>
         private Dictionary<string, double> CalculateColumnStatistics(string columnName)
         {
             Dictionary<string, double> statistics = new();
@@ -367,6 +441,10 @@ namespace DataAnalysisTool
             return statistics;
         }
 
+        /// <summary>
+        /// Appends new data from the specified file to the dataset.
+        /// </summary>
+        /// <param name="filePath">The path of the file containing the new data.</param>
         public void AppendNewData(string filePath)
         {
             Dataset new_data = DataImporter.ImportData(filePath);
@@ -374,12 +452,20 @@ namespace DataAnalysisTool
             Console.WriteLine("New dataset was added.");
         }
 
+        /// <summary>
+        /// Sorts the dataset based on the specified column name.
+        /// </summary>
+        /// <param name="columnName">The name of the column to sort by.</param>
         public void SortColumn(string columnName)
         {
             _dataset.SortByColumn(columnName);
             Console.WriteLine("Dataset was sorted.");
         }
 
+        /// <summary>
+        /// Checks if the dataset contains a column with the specified name.
+        /// </summary>
+        /// <param name="columnName">The name of the column to check.</param>
         private void ControlColumnName(string columnName)
         {
             if (!_dataset.GetColumnsNames().Contains(columnName))
@@ -388,6 +474,10 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Checks if the dataset contains a numerical column with the specified name.
+        /// </summary>
+        /// <param name="columnName">The name of the column to check.</param>
         private void ControlNumericalColumn(string columnName)
         {
             if (!_dataset.GetNumericColumns().Contains(columnName))
@@ -397,6 +487,9 @@ namespace DataAnalysisTool
         }
     }
 
+    /// <summary>
+    /// Exception class for dataset processing errors.
+    /// </summary>
     class ProcessDatasetException : DataAnalysisException
     {
         public ProcessDatasetException()

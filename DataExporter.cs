@@ -4,15 +4,26 @@ using System.Globalization;
 
 namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Class responsible for exporting dataset to different file formats.
+    /// </summary>
     class DataExporter
     {
         private readonly Dataset _dataset;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataExporter"/> class.
+        /// </summary>
+        /// <param name="dataset">The dataset to be exported.</param>
         public DataExporter(Dataset dataset)
         {
             _dataset = dataset;
         }
 
+        /// <summary>
+        /// Exports the dataset to the specified file path.
+        /// </summary>
+        /// <param name="filePath">The path of the file to export the dataset to.</param>
         public void ExportData(string filePath)
         {
             string fileExtension = Path.GetExtension(filePath);
@@ -29,6 +40,10 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Exports the dataset to a CSV file.
+        /// </summary>
+        /// <param name="filePath">The path of the CSV file to export the dataset to.</param>
         private void ExportToCSV(string filePath)
         {
             try
@@ -64,6 +79,10 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Exports the dataset to a JSON file.
+        /// </summary>
+        /// <param name="filePath">The path of the JSON file to export the dataset to.</param>
         private void ExportToJSON(string filePath)
         {
             try
@@ -94,6 +113,9 @@ namespace DataAnalysisTool
         }
     }
 
+    /// <summary>
+    /// Exception thrown for exporter dataset errors.
+    /// </summary>
     class ExporterDatasetException : DataAnalysisException
     {
         public ExporterDatasetException()

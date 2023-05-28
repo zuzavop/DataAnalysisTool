@@ -2,8 +2,17 @@
 
 namespace DataAnalysisTool
 {
+    /// <summary>
+    /// Class responsible for importing data from various file formats into a dataset.
+    /// </summary>
     class DataImporter
     {
+        /// <summary>
+        /// Imports data from the specified file path into a dataset.
+        /// </summary>
+        /// <param name="filePath">The path of the file to import data from.</param>
+        /// <param name="separator">The character used as a separator in the file (default is comma).</param>
+        /// <returns>The dataset containing the imported data.</returns>
         public static Dataset ImportData(string filePath, char separator = ',')
         {
             // Check if the file exists
@@ -31,6 +40,12 @@ namespace DataAnalysisTool
             return dataset;
         }
 
+        /// <summary>
+        /// Imports data from a CSV file into a dataset.
+        /// </summary>
+        /// <param name="filePath">The path of the CSV file to import data from.</param>
+        /// <param name="dataset">The dataset to import the data into.</param>
+        /// <param name="separator">The character used as a separator in the CSV file.</param>
         private static void ImportCSVData(string filePath, Dataset dataset, char separator)
         {
             try
@@ -72,6 +87,11 @@ namespace DataAnalysisTool
             }
         }
 
+        /// <summary>
+        /// Imports data from a JSON file into a dataset.
+        /// </summary>
+        /// <param name="filePath">The path of the JSON file to import data from.</param>
+        /// <param name="dataset">The dataset to import the data into.</param>
         private static void ImportJSONData(string filePath, Dataset dataset)
         {
             try
@@ -114,6 +134,9 @@ namespace DataAnalysisTool
         }
     }
 
+    /// <summary>
+    /// Exception class for import dataset errors.
+    /// </summary>
     class ImportDatasetException : DataAnalysisException
     {
         public ImportDatasetException()
