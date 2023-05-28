@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using static OfficeOpenXml.ExcelErrorValue;
 
 namespace DataAnalysisTool
 {
@@ -11,12 +12,6 @@ namespace DataAnalysisTool
         {
             data = new List<DataObject>();
             columnsNames = new List<string>();
-        }
-
-        private Dataset(List<DataObject> data, List<string> columnsNames)
-        {
-            this.data = data;
-            this.columnsNames = columnsNames;
         }
 
         public void SetHeader(string[] header)
@@ -32,10 +27,16 @@ namespace DataAnalysisTool
             columnsNames.Add(name);
         }
 
-        public void AddData(DataObject dataObject)
+        public void AddNewData(DataObject dataObject)
         {
             dataObject.Id = data.Count;
             data.Add(dataObject);
+        }
+
+        public void AddData(DataObject dataObject)
+        {
+            lock(data)
+                data.Add(dataObject);
         }
 
         public void RemoveData(DataObject dataObject)
@@ -125,20 +126,21 @@ namespace DataAnalysisTool
         {
             if (!columnName.Contains(columnName))
             {
-                throw new DatasetException($"Column '{columnName}' does not exist.");
+                throw new DatasetException($"Column '{columnName}' doesn't exist in current dataset.");
             }
 
             if (GetNumericColumns().Contains(columnName))
             {
                 List<double> columnValues = new();
 
-                foreach (DataObject dataObject in data)
+                Parallel.ForEach(data, row =>
                 {
-                    if (dataObject.TryGetNumericValue(columnName, out double value))
+                    if (row.TryGetNumericValue(columnName, out double value))
                     {
-                        columnValues.Add(value);
+                        lock (columnValues)
+                            columnValues.Add(value);
                     }
-                }
+                });
 
                 return columnValues;
             }
@@ -148,10 +150,9 @@ namespace DataAnalysisTool
 
         public void AddDataset(Dataset newData)
         {
-            int maxId = data.Max(value => value.Id) + 1;
             foreach (DataObject dataObject in newData.GetData())
             {
-                DataObject newRow = new(maxId);
+                DataObject newRow = new();
                 foreach (var valuePair in dataObject.columnValuePairs)
                 {
                     if (columnsNames.Contains(valuePair.Key))
@@ -161,8 +162,7 @@ namespace DataAnalysisTool
                 if (newRow.columnValuePairs.Count > 0)
                 {
 
-                    AddData(newRow);
-                    ++maxId;
+                    AddNewData(newRow);
                 }
             }
         }
@@ -174,7 +174,22 @@ namespace DataAnalysisTool
                 throw new DatasetException($"Column '{columnName}' does not exist.");
             }
 
-            data = data.OrderBy(row => row.GetColumnValue(columnName)).ToList();
+            if (GetNumericColumns().Contains(columnName))
+            {
+                data = data.OrderBy(row => {
+                    row.TryGetNumericValue(columnName, out double value);
+                    return value;
+                }).ToList();
+            } 
+            else
+            {
+                data = data.OrderBy(row => row.GetColumnValue(columnName)).ToList();
+            }
+        }
+
+        public void SortDataset()
+        {
+            data = data.OrderBy(row => row.Id).ToList();
         }
 
         public void RemoveDuplicates()
@@ -202,10 +217,16 @@ namespace DataAnalysisTool
         public readonly Dictionary<string, string> columnValuePairs;
         public int Id { get; set; }
 
-        public DataObject(int iD)
+        public DataObject()
         {
             columnValuePairs = new Dictionary<string, string>();
-            Id = iD;
+            Id = 0;
+        }
+
+        public DataObject(int id)
+        {
+            columnValuePairs = new Dictionary<string, string>();
+            Id = id;
         }
 
         public string? GetColumnValue(string columnName)

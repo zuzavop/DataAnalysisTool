@@ -41,36 +41,29 @@ namespace DataAnalysisTool
                 if (headers != null)
                 {
                     dataset.SetHeader(headers);
-                    int id = 0;
-                    while (!reader.EndOfStream)
+                    Parallel.ForEach(File.ReadLines(filePath), (line, _, lineNumber) =>
                     {
-                        string[]? values = reader.ReadLine()?.Split(separator);
-
-                        if (values == null)
+                        if (lineNumber > 0)
                         {
-                            break;
+                            string[]? values = line.Split(separator);
+                            if (values.Any())
+                            {
+                                DataObject dataObject = new((int)lineNumber);
+
+                                for (int i = 0; i < headers.Length; i++)
+                                {
+                                    string column = headers[i];
+                                    string value = values[i];
+
+                                    dataObject.SetColumnValue(column, value);
+                                }
+
+                                lock(dataset)
+                                    dataset.AddData(dataObject);
+                            }
                         }
-
-                        if (values.Length != headers.Length)
-                        {
-                            Console.WriteLine("Invalid data format. Skipping row.");
-                            continue;
-                        }
-
-                        DataObject dataObject = new(id);
-
-                        for (int i = 0; i < headers.Length; i++)
-                        {
-                            string column = headers[i];
-                            string value = values[i];
-
-                            dataObject.SetColumnValue(column, value);
-                        }
-
-                        dataset.AddData(dataObject);
-
-                        id++;
-                    }
+                    });
+                    dataset.SortDataset();
                 }
             }
             catch (IOException ex)
@@ -84,28 +77,30 @@ namespace DataAnalysisTool
             try
             {
                 string jsonContent = File.ReadAllText(filePath);
-                var dataObjects = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(jsonContent);
+                var dataObjects = JsonConvert.DeserializeObject<IEnumerable<Dictionary<string, string>>>(jsonContent);
 
-                if (dataObjects != null && dataObjects.Count > 0)
+                if (dataObjects != null && dataObjects.Any())
                 {
-                    int id = 0;
-                    foreach (var dataObject in dataObjects)
+                    Parallel.ForEach(dataObjects, (value, _, lineId) =>
                     {
-                        DataObject newDataObject = new(id);
+                        DataObject newDataObject = new();
 
-                        foreach (var columnValue in dataObject)
+                        foreach (var columnValue in value)
                         {
                             newDataObject.SetColumnValue(columnValue.Key, columnValue.Value);
-                            if (!dataset.GetColumnsNames().Contains(columnValue.Key))
+
+                            lock (dataset)
                             {
-                                dataset.AddHeaderName(columnValue.Key);
-                            }
+                                if (!dataset.GetColumnsNames().Contains(columnValue.Key))
+                                {
+                                    dataset.AddHeaderName(columnValue.Key);
+                                }
+                            }                            
                         }
 
                         dataset.AddData(newDataObject);
-
-                        ++id;
-                    }
+                    });
+                    dataset.SortDataset();
                 }
             }
             catch (IOException ex)

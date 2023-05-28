@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics;
+using System.Collections.Concurrent;
 using System.Data;
 
 namespace DataAnalysisTool
@@ -53,15 +54,8 @@ namespace DataAnalysisTool
         private double CalculateMean(string columnName)
         {
             ControlNumericalColumn(columnName);
-            List<double> values = new();
+            List<double> values = _dataset.GetNumericColumnValues(columnName);
 
-            foreach (DataObject dataObject in _dataset.GetData())
-            {
-                if (dataObject.TryGetNumericValue(columnName, out double value))
-                {
-                    values.Add(value);
-                }
-            }
             // Convert the string values to double and calculate the mean
             double mean = values.Average();
             return mean;
@@ -70,15 +64,8 @@ namespace DataAnalysisTool
         private double CalculateMedian(string columnName)
         {
             ControlNumericalColumn(columnName);
-            List<double> values = new();
-
-            foreach (DataObject dataObject in _dataset.GetData())
-            {
-                if (dataObject.TryGetNumericValue(columnName, out double value))
-                {
-                    values.Add(value);
-                }
-            }
+            List<double> values = _dataset.GetNumericColumnValues(columnName);
+            values.Sort();
 
             if (values.Count == 0)
             {
@@ -98,11 +85,11 @@ namespace DataAnalysisTool
         private string CalculateColumnMode(string columnName)
         {
             List<double> values = new();
-            Dictionary<string, int> valueCounts = new();
+            ConcurrentDictionary<string, int> valueCounts = new();
 
-            foreach (DataObject dataObject in _dataset.GetData())
+            Parallel.ForEach(_dataset.GetData(), row =>
             {
-                string? value = dataObject.GetColumnValue(columnName);
+                string? value = row.GetColumnValue(columnName);
                 if (value != null)
                 {
                     if (valueCounts.ContainsKey(value))
@@ -110,7 +97,7 @@ namespace DataAnalysisTool
                     else
                         valueCounts[value] = 1;
                 }
-            }
+            });
 
             int maxCount = valueCounts.Values.Max();
             List<string> modes = valueCounts.Where(kv => kv.Value == maxCount).Select(kv => kv.Key).ToList();
@@ -127,15 +114,7 @@ namespace DataAnalysisTool
         private double CalculateStandardDeviation(string columnName)
         {
             ControlNumericalColumn(columnName);
-            List<double> values = new();
-
-            foreach (DataObject dataObject in _dataset.GetData())
-            {
-                if (dataObject.TryGetNumericValue(columnName, out double value))
-                {
-                    values.Add(value);
-                }
-            }
+            List<double> values = _dataset.GetNumericColumnValues(columnName);
 
             if (values.Count < 2)
             {
@@ -152,13 +131,13 @@ namespace DataAnalysisTool
         private double CalculateColumnEntropy(string columnName)
         {
             List<DataObject> dataObjects = _dataset.GetData();
-            Dictionary<string, int> valueCounts = new();
+            ConcurrentDictionary<string, int> valueCounts = new();
             int totalCount = 0;
 
-            string? value;
-            foreach (DataObject dataObject in dataObjects)
+            Parallel.ForEach(_dataset.GetData(), row =>
             {
-                if ((value = dataObject.GetColumnValue(columnName)) != null)
+                string? value;
+                if ((value = row.GetColumnValue(columnName)) != null)
                 {
                     if (valueCounts.ContainsKey(value))
                     {
@@ -171,7 +150,7 @@ namespace DataAnalysisTool
 
                     totalCount++;
                 }
-            }
+            });
 
             double entropy = 0;
 
@@ -192,14 +171,14 @@ namespace DataAnalysisTool
             List<double> xData = new();
             List<double> yData = new();
 
-            foreach (DataObject dataObject in _dataset.GetData())
+            Parallel.ForEach(_dataset.GetData(), row =>
             {
-                if (dataObject.TryGetNumericValue(columnName1, out double value1) && dataObject.TryGetNumericValue(columnName2, out double value2))
+                if (row.TryGetNumericValue(columnName1, out double value1) && row.TryGetNumericValue(columnName2, out double value2))
                 {
                     xData.Add(value1);
                     yData.Add(value2);
                 }
-            }
+            });
 
             var (A, B) = Fit.Line(xData.ToArray(), yData.ToArray());
 
@@ -222,14 +201,14 @@ namespace DataAnalysisTool
             List<double> values1 = new();
             List<double> values2 = new();
 
-            foreach (DataObject dataObject in _dataset.GetData())
+            Parallel.ForEach(_dataset.GetData(), row =>
             {
-                if (dataObject.TryGetNumericValue(column1Name, out double value1) && dataObject.TryGetNumericValue(column2Name, out double value2))
+                if (row.TryGetNumericValue(column1Name, out double value1) && row.TryGetNumericValue(column2Name, out double value2))
                 {
                     values1.Add(value1);
                     values2.Add(value2);
                 }
-            }
+            });
 
             double correlation = CalculatePearsonCorrelation(values1, values2);
             Console.WriteLine($"Pearson Correlation of column {column1Name} and column {column2Name}: {correlation}");
