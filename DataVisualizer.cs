@@ -6,10 +6,12 @@ namespace DataAnalysisTool
     {
         private readonly Dataset _dataset;
         private readonly string inputPath;
-        public DataVisualizer(Dataset dataset, string filePath)
+        private readonly char seperator;
+        public DataVisualizer(Dataset dataset, string filePath, char seperator)
         {
             this._dataset = dataset;
             this.inputPath = filePath;
+            this.seperator = seperator;
         }
 
         public void PrintAllData()
@@ -53,30 +55,35 @@ namespace DataAnalysisTool
 
         public void CreateAndSaveLinePlot(string outputFilePath, string columnName1, string columnName2)
         {
-            CreateAndSavePlot(outputFilePath, columnName1, columnName2, "line_plot");
+            CreateAndSavePlot(outputFilePath, "line_plot", columnName1, columnName2);
         }
 
         public void CreateAndSaveBarPlot(string outputFilePath, string columnName1, string columnName2)
         {
-            CreateAndSavePlot(outputFilePath, columnName1, columnName2, "bar_plot");
+            CreateAndSavePlot(outputFilePath, "bar_plot", columnName1, columnName2);
         }
 
         public void CreateAndSaveScatterPlot(string outputFilePath, string columnName1, string columnName2)
         {
-            CreateAndSavePlot(outputFilePath, columnName1, columnName2, "scatter_plot");
+            CreateAndSavePlot(outputFilePath, "scatter_plot", columnName1, columnName2);
         }
 
-        public void CreateAndSavePiePlot(string outputFilePath, string columnName1, string columnName2)
+        public void CreateAndSavePiePlot(string outputFilePath, string columnName1)
         {
-            CreateAndSavePlot(outputFilePath, columnName1, columnName2, "pie_plot");
+            CreateAndSavePlot(outputFilePath, "pie_plot", columnName1);
         }
 
         public void CreateAndSaveHistogram(string outputFilePath, string columnName1, string columnName2)
         {
-            CreateAndSavePlot(outputFilePath, columnName1, columnName2, "histogram");
+            CreateAndSavePlot(outputFilePath, "histogram", columnName1, columnName2);
         }
 
-        private void CreateAndSavePlot(string outputFilePath, string columnName1, string columnName2, string plotName)
+        public void CreateAndSaveBoxPlot(string outputFilePath, string columnName1, string columnName2)
+        {
+            CreateAndSavePlot(outputFilePath, "box_plot", columnName1, columnName2);
+        }
+
+        private void CreateAndSavePlot(string outputFilePath, string plotName, string columnName1, string columnName2 ="")
         {
             string fileExtension = Path.GetExtension(inputPath);
             if (!fileExtension.Equals(".csv"))
@@ -104,7 +111,7 @@ namespace DataAnalysisTool
             ProcessStartInfo psi = new()
             {
                 FileName = "python", // Assumes Python is in the system PATH
-                Arguments = $"{projectDirectory}plot.py {plotName} {inputPath} {columnName1} {columnName2} {outputFilePath}",
+                Arguments = $"\"{projectDirectory}plot.py\" {plotName} {inputPath} {seperator} {columnName1} {columnName2} {outputFilePath}",
                 RedirectStandardOutput = true,
                 UseShellExecute = false
             };
