@@ -55,15 +55,20 @@ namespace DataGeneration
 
     public class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
             string workingDirectory = Environment.CurrentDirectory;
             string? projectDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
             if (projectDirectory == null) projectDirectory = "";
             else projectDirectory += "\\..\\";
 
-            string filePath = projectDirectory + "test.csv";
-            int rowCount = 300;
+            string filePath = args.Length > 0 ? args[0] : projectDirectory + "test.csv";
+
+            int rowCount = 100;
+            if (args.Length > 2 && int.TryParse(args[1], out int count))
+            {
+                rowCount = count;
+            }
 
             CsvGenerator.GenerateCsvFile(filePath, rowCount);
             Console.WriteLine($"CSV file '{filePath}' with {rowCount} rows generated successfully.");

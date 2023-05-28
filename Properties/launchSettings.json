@@ -2,7 +2,7 @@
   "profiles": {
     "DataAnalysisTool": {
       "commandName": "Project",
-      "commandLineArgs": "../../../data/test_data.csv"
+      "commandLineArgs": "../../../data/test.csv"
     }
   }
 }

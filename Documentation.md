@@ -70,3 +70,11 @@ The `DatasetExplorer` provides functionality to explore dataset. It offers opera
 
 The key responsibilities of the `DatasetExplorer` include:
 * Extracting metadata information, such as column names, data types, and statistical measures.
+
+
+## Subproject
+### Data generation
+Subproject for gerenating csv files with semi-random data. First argument can be path of output file and second argument can be number of rows in output.
+
+### Tests
+
