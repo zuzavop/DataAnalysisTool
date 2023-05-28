@@ -213,7 +213,7 @@ namespace DataAnalysisTool
         /// <param name="commandName">The name of the command to get help for (optional).</param>
         private void PrintHelp(string commandName="")
         {
-            if (commandName == "")
+            if (string.IsNullOrEmpty(commandName))
             {
                 // print help for all commands
                 Console.WriteLine("Available commands:");
@@ -265,24 +265,28 @@ namespace DataAnalysisTool
         /// <param name="line">The command line to execute.</param>
         public void ExecuteCommand(string? line)
         {
-            if (line != null)
+            if (line is not null)
             {
-                string command = line.Split(" ")[0].ToLower();
-                if (commands.ContainsKey(command))
+                string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0)
                 {
-                    string[] args = line.Split(" ")[1..];
-                    if (!commands[command].StartFunc(args))
+                    string command = parts[0].ToLower();
+                    if (commands.TryGetValue(command, out var commandObj))
                     {
-                        Console.WriteLine($"Wrong number of parameters for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use the `help` command.");
+                        string[] args = parts[1..];
+                        if (!commandObj.StartFunc(args))
+                        {
+                            Console.WriteLine($"Wrong number of parameters for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use the `help` command.");
+                        }
                     }
-                }
-                else if (command.Equals("exit"))
-                {
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid command. Please try again or use the 'help' command for more information.");
+                    else if (command.Equals("exit"))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid command. Please try again or use the 'help' command for more information.");
+                    }
                 }
             }
         }
