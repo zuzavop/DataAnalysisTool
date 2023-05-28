@@ -26,7 +26,9 @@ namespace DataAnalysisTool
         {
             try
             {
-                inputDataset = DataImporter.ImportData(filePath);
+                char seperator = options.Contains("-s") ? options[Array.IndexOf(options, "-s") + 1][0] : 
+                    (options.Contains("--seperator") ? options[Array.IndexOf(options, "--seperator") + 1][0] : ',');
+                inputDataset = DataImporter.ImportData(filePath, seperator);
             }
             catch (DataAnalysisException ex)
             {
@@ -46,7 +48,7 @@ namespace DataAnalysisTool
 
             commands.Add("explore", new AnalyzeFunc(explorer.ExploreDataset, 1, true)
             {
-                HelpText = "Show overall statistic about whole dataset of about one column.",
+                HelpText = "Show overall statistics about the whole dataset or a specific column.",
                 HelpParams = new string[] { "column name" }
             });
             commands.Add("export", new AnalyzeFunc(exporter.ExportData, 1)
@@ -59,69 +61,79 @@ namespace DataAnalysisTool
                 HelpText = "Display all data in the dataset.",
                 HelpParams = Array.Empty<string>()
             });
-            commands.Add("filter", new AnalyzeFunc(processor.ApplyFilters, 2)
+            commands.Add("filter", new AnalyzeFunc(processor.ApplyFilters, 3)
             {
-                HelpText = "Filter column by value.",
-                HelpParams = new string[] { "column name", "value" }
+                HelpText = "Filter column by value. Keeps only rows that match the specified conditions.\n" +
+                "If the column contains non-numeric values or if the given `value` is non-numeric, " +
+                "less than and greater than comparisons will be based on the lengths of strings. " +
+                "The 'in' condition checks if the column value contains the specified value.",
+                HelpParams = new string[] { "column name", "=|!=|<|>|=>|=<|in", "value" }
             });
             commands.Add("clean", new AnalyzeFunc(processor.CleanAndPreprocessData, 0)
             {
-                HelpText = "Clean dataset. Remove rows with missing values and normalize columns with number values.",
+                HelpText = "Clean the dataset by removing rows with missing values and normalizing columns with numerical values.",
                 HelpParams = Array.Empty<string>()
             });
             commands.Add("remove_duplicates", new AnalyzeFunc(processor.RemoveDuplicates, 0)
             {
-                HelpText = "Remove duplicates from dataset.",
+                HelpText = "Remove duplicates from the dataset.",
                 HelpParams = Array.Empty<string>()
             });
             commands.Add("append", new AnalyzeFunc(processor.AppendNewData, 1)
             {
-                HelpText = "Append data from another file to end of dataset. Pick only column that are already in dataset.",
+                HelpText = "Append data from another file to the end of the dataset. " +
+                "Only include columns that already exist in the dataset.",
                 HelpParams = new string[] { "file path" }
             });
             commands.Add("statistic", new AnalyzeFunc(processor.PerformCalculations, 2)
             {
-                HelpText = "Show statistic of column.",
+                HelpText = "Show selected statistics of the column.",
                 HelpParams = new string[] { "column name", "mean|median|deviation|entropy|mode|all" }
             });
             commands.Add("correlation", new AnalyzeFunc(processor.CalculateColumnCorrelation, 2)
             {
-                HelpText = "Show Pearson correlation of two columns.",
+                HelpText = "Show the Pearson correlation between two columns.",
                 HelpParams = new string[] { "column name", "column name" }
             });
             commands.Add("outliers", new AnalyzeFunc(processor.FindOutliers, 1)
             {
-                HelpText = "Find outliers in column if the column contains numberical values.",
+                HelpText = "Find outliers in a column if the column contains numerical values.",
                 HelpParams = new string[] { "column name" }
+            });
+            commands.Add("regression", new AnalyzeFunc(processor.PerformRegressionAnalysis, 2)
+            {
+                HelpText = "Perform regression analysis on two columns. " +
+                    "The data from the first column will be used as the x-coordinate and the data from the second column as the y-coordinate.",
+                HelpParams = new string[] { "column name", "column name" }
             });
             commands.Add("bar_plot", new AnalyzeFunc(visualizer.CreateAndSaveBarPlot, 3)
             {
-                HelpText = "Export bar plot created from selected colums from input file data.",
+                HelpText = "Export bar plot created from selected colums in the input file data.",
                 HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("line_plot", new AnalyzeFunc(visualizer.CreateAndSaveLinePlot, 3)
             {
-                HelpText = "Export line plot created from selected colums from input file data.",
+                HelpText = "Export line plot created from selected colums in the input file data.",
                 HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("scatter_plot", new AnalyzeFunc(visualizer.CreateAndSaveScatterPlot, 3)
             {
-                HelpText = "Export scatter plot created from selected colums from input file data.",
+                HelpText = "Export scatter plot created from selected colums in the input file data.",
                 HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("histogram", new AnalyzeFunc(visualizer.CreateAndSaveHistogram, 3)
             {
-                HelpText = "Export histogram created from selected colums from input file data.",
+                HelpText = "Export histogram created from selected colums in the input file data.",
                 HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("pie_plot", new AnalyzeFunc(visualizer.CreateAndSavePiePlot, 3)
             {
-                HelpText = "Export pie plot created from selected colums from input file data.",
+                HelpText = "Export pie plot created from selected colums in the input file data.",
                 HelpParams = new string[] { "output file path", "column name", "column name" }
             });
             commands.Add("sort", new AnalyzeFunc(processor.SortColumn, 1)
             {
-                HelpText = "Sort dataset by column.",
+                HelpText = "Sort dataset by the column.",
                 HelpParams = new string[] { "column name" }
             });
 
@@ -150,7 +162,7 @@ namespace DataAnalysisTool
                         string[] args = line.Split(" ")[1..];
                         if (!commands[command].StartFunc(args))
                         {
-                            Console.WriteLine($"Wrong number of parametrs for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use command `help`.");
+                            Console.WriteLine($"Wrong number of parameters for command `{command}`: {args.Length} instead of {commands[command].NumberParams}. For more information use the `help` command.");
                         }
                     }
                     else if (command.Equals("exit"))
@@ -159,7 +171,7 @@ namespace DataAnalysisTool
                     }
                     else
                     {
-                        Console.WriteLine("Invalid command. Please try again or use 'help' command for more information.");
+                        Console.WriteLine("Invalid command. Please try again or use the 'help' command for more information.");
                     }
                 }
             }
@@ -183,7 +195,7 @@ namespace DataAnalysisTool
                 Console.WriteLine($" - {analyzeFunc.HelpText}");
                 Console.WriteLine();
             }
-            Console.WriteLine("  exit - End Data Analysis Tool.");
+            Console.WriteLine("  exit - End interactive Data Analysis Tool.");
         }
 
         private class AnalyzeFunc

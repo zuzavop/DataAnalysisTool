@@ -53,38 +53,11 @@ namespace DataAnalysisTool
             return columnsNames;
         }
 
-        public void FilterByColumnValue(string columnName, string value)
-        {
-            if (!columnName.Contains(columnName))
-            {
-                throw new DatasetException($"Column '{columnName}' does not exist.");
-            }
-            data = data.Where(dataObject => dataObject.HasColumnValue(columnName, value)).ToList();
-        }
-
-        public void FilterByColumnValue(Func<DataObject, bool> f)
+        public void FilterByColumnValue(params Func<DataObject, bool>[] functions)
         {
             data = (List<DataObject>)(from d in data
-                                      where f(d)
+                                      where functions.All(func => func(d))
                                       select d);
-        }
-
-        public Dataset GetFilterDataset(string columnName, string value)
-        {
-            if (!columnName.Contains(columnName))
-            {
-                throw new DatasetException($"Column '{columnName}' does not exist.");
-            }
-            List<DataObject> new_data = data.Where(dataObject => dataObject.HasColumnValue(columnName, value)).ToList();
-            return new Dataset(new_data, columnsNames);
-        }
-
-        public Dataset GetFilterDataset(Func<DataObject, bool> f)
-        {
-            List<DataObject> new_data = (List<DataObject>)(from d in data
-                                                           where f(d)
-                                                           select d);
-            return new Dataset(new_data, columnsNames);
         }
 
         public void RemoveRowsWithMissingValues()
@@ -132,7 +105,7 @@ namespace DataAnalysisTool
 
                 foreach (DataObject dataObject in data)
                 {
-                    if (!dataObject.TryGetNumericValue(column, out _))
+                    if (dataObject.columnValuePairs.ContainsKey(column) && !dataObject.TryGetNumericValue(column, out _))
                     {
                         isNumeric = false;
                         break;
@@ -173,11 +146,24 @@ namespace DataAnalysisTool
             return new List<double>();
         }
 
-        public void AddDataset(Dataset new_data)
+        public void AddDataset(Dataset newData)
         {
-            foreach (DataObject dataObject in data)
+            int maxId = data.Max(value => value.Id) + 1;
+            foreach (DataObject dataObject in newData.GetData())
             {
-                AddData(dataObject);
+                DataObject newRow = new(maxId);
+                foreach (var valuePair in dataObject.columnValuePairs)
+                {
+                    if (columnsNames.Contains(valuePair.Key))
+                        newRow.AddColumnValue(valuePair.Key, valuePair.Value);
+                }
+
+                if (newRow.columnValuePairs.Count > 0)
+                {
+
+                    AddData(newRow);
+                    ++maxId;
+                }
             }
         }
 
@@ -198,7 +184,7 @@ namespace DataAnalysisTool
             foreach (var row in data)
             {
                 var rowValues = String.Join(",", row.columnValuePairs.Values.ToList());
-                
+
                 if (rowValues == null || uniqueRows.Contains(rowValues))
                 {
                     RemoveData(row);
@@ -256,12 +242,12 @@ namespace DataAnalysisTool
 
         public bool HasColumnValue(string columnName, string value)
         {
-            return columnValuePairs.ContainsKey(columnName) && columnValuePairs[columnName] == value;
+            return columnValuePairs.ContainsKey(columnName) && columnValuePairs[columnName].Equals(value);
         }
 
         public bool HasColumnNumericValue(string columnName, double value)
         {
-            return columnValuePairs.ContainsKey(columnName) && double.TryParse(columnName, out double columnValue) && columnValue == value;
+            return columnValuePairs.ContainsKey(columnName) && double.TryParse(columnName, out double columnValue) && columnValue.Equals(value);
         }
 
         public bool HasMissingValues(List<string> columnsNames)

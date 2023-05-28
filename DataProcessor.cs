@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using MathNet.Numerics;
+using System.Data;
 
 namespace DataAnalysisTool
 {
@@ -51,6 +52,7 @@ namespace DataAnalysisTool
 
         private double CalculateMean(string columnName)
         {
+            ControlNumericalColumn(columnName);
             List<double> values = new();
 
             foreach (DataObject dataObject in _dataset.GetData())
@@ -67,6 +69,7 @@ namespace DataAnalysisTool
 
         private double CalculateMedian(string columnName)
         {
+            ControlNumericalColumn(columnName);
             List<double> values = new();
 
             foreach (DataObject dataObject in _dataset.GetData())
@@ -80,7 +83,8 @@ namespace DataAnalysisTool
             if (values.Count == 0)
             {
                 return 0;
-            } else if (values.Count == 1)
+            }
+            else if (values.Count == 1)
             {
                 return values[0];
             }
@@ -122,6 +126,7 @@ namespace DataAnalysisTool
 
         private double CalculateStandardDeviation(string columnName)
         {
+            ControlNumericalColumn(columnName);
             List<double> values = new();
 
             foreach (DataObject dataObject in _dataset.GetData())
@@ -144,7 +149,7 @@ namespace DataAnalysisTool
             return Math.Sqrt(variance);
         }
 
-        private double CalculateColumnEntropy(string column)
+        private double CalculateColumnEntropy(string columnName)
         {
             List<DataObject> dataObjects = _dataset.GetData();
             Dictionary<string, int> valueCounts = new();
@@ -153,7 +158,7 @@ namespace DataAnalysisTool
             string? value;
             foreach (DataObject dataObject in dataObjects)
             {
-                if ((value = dataObject.GetColumnValue(column)) != null)
+                if ((value = dataObject.GetColumnValue(columnName)) != null)
                 {
                     if (valueCounts.ContainsKey(value))
                     {
@@ -179,10 +184,40 @@ namespace DataAnalysisTool
             return entropy;
         }
 
+        public void PerformRegressionAnalysis(string columnName1, string columnName2)
+        {
+            ControlNumericalColumn(columnName1);
+            ControlNumericalColumn(columnName2);
+
+            List<double> xData = new();
+            List<double> yData = new();
+
+            foreach (DataObject dataObject in _dataset.GetData())
+            {
+                if (dataObject.TryGetNumericValue(columnName1, out double value1) && dataObject.TryGetNumericValue(columnName2, out double value2))
+                {
+                    xData.Add(value1);
+                    yData.Add(value2);
+                }
+            }
+
+            var (A, B) = Fit.Line(xData.ToArray(), yData.ToArray());
+
+            double slope = A;
+            double intercept = B;
+
+            Console.WriteLine($"Regression equation: y = {slope} * x + {intercept}");
+
+            double[] predictedY = xData.Select(x => slope * x + intercept).ToArray();
+            double rSquared = GoodnessOfFit.RSquared(yData, predictedY);
+
+            Console.WriteLine($"R-squared: {rSquared}");
+        }
+
         public void CalculateColumnCorrelation(string column1Name, string column2Name)
         {
-            ControlColumnName(column1Name);
-            ControlColumnName(column2Name);
+            ControlNumericalColumn(column1Name);
+            ControlNumericalColumn(column2Name);
 
             List<double> values1 = new();
             List<double> values2 = new();
@@ -225,10 +260,42 @@ namespace DataAnalysisTool
             return numerator / denominator;
         }
 
-        public void ApplyFilters(string columnName, string value)
+        public void ApplyFilters(string columnName, string condition, string value)
         {
-            // Filter the Dataset based on the specified column and value
-            _dataset.FilterByColumnValue(columnName, value);
+            ControlColumnName(columnName);
+
+            Func<DataObject, bool> filter;
+
+            if (_dataset.GetNumericColumns().Contains(columnName) && double.TryParse(value, out double numericValue))
+            {
+                filter = condition switch
+                {
+                    "=" => row => row.HasColumnNumericValue(columnName, numericValue),
+                    "!=" => row => !row.HasColumnNumericValue(columnName, numericValue),
+                    ">" => row => row.TryGetNumericValue(columnName, out double val) && val > numericValue,
+                    "<" => row => row.TryGetNumericValue(columnName, out double val) && val < numericValue,
+                    "=>" => row => row.TryGetNumericValue(columnName, out double val) && val >= numericValue,
+                    "=<" => row => row.TryGetNumericValue(columnName, out double val) && val <= numericValue,
+                    "in" => row => row.GetColumnValue(columnName)?.Contains(value) == true,
+                    _ => throw new ProcessDatasetException($"Condition {condition} is not allowed. For possible choices of conditions use the `help` command.")
+                };
+            }
+            else
+            {
+                filter = condition switch
+                {
+                    "=" => row => row.HasColumnValue(columnName, value),
+                    "!=" => row => !row.HasColumnValue(columnName, value),
+                    ">" => row => row.GetColumnValue(columnName)?.Length > value.Length,
+                    "<" => row => row.GetColumnValue(columnName)?.Length < value.Length,
+                    "=>" => row => row.GetColumnValue(columnName)?.Length >= value.Length,
+                    "=<" => row => row.GetColumnValue(columnName)?.Length <= value.Length,
+                    "in" => row => row.GetColumnValue(columnName)?.Contains(value) == true,
+                    _ => throw new ProcessDatasetException($"Condition {condition} is not allowed. For possible choices of conditions use the `help` command.")
+                };
+            }
+
+            _dataset.FilterByColumnValue(filter);
         }
 
         public void CleanAndPreprocessData()
@@ -252,7 +319,7 @@ namespace DataAnalysisTool
 
         public void FindOutliers(string columnName)
         {
-            ControlColumnName(columnName);
+            ControlNumericalColumn(columnName);
             Dictionary<int, double> outliers = new();
 
             double mean = CalculateMean(columnName);
@@ -324,6 +391,14 @@ namespace DataAnalysisTool
             if (!_dataset.GetColumnsNames().Contains(columnName))
             {
                 throw new ProcessDatasetException($"Current dataset doesn't contain column with name {columnName}.");
+            }
+        }
+
+        private void ControlNumericalColumn(string columnName)
+        {
+            if (!_dataset.GetNumericColumns().Contains(columnName))
+            {
+                throw new ProcessDatasetException($"Current dataset doesn't contain numerical column with name {columnName}.");
             }
         }
     }

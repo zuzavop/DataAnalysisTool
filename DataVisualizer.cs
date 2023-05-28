@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace DataAnalysisTool
 {
@@ -96,11 +95,16 @@ namespace DataAnalysisTool
                 throw new VisualizationDatasetException($"Output file should be with extension .png. Extension {fileExtension} is not supported.");
             }
 
+            string workingDirectory = Environment.CurrentDirectory;
+            string? projectDirectory = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
+            if (projectDirectory == null) projectDirectory = "";
+            else projectDirectory += "\\";
+
             // Invoke the Python script
             ProcessStartInfo psi = new()
             {
                 FileName = "python", // Assumes Python is in the system PATH
-                Arguments = $"plot.py {plotName} {inputPath} {columnName1} {columnName2} {outputFilePath}",
+                Arguments = $"{projectDirectory}plot.py {plotName} {inputPath} {columnName1} {columnName2} {outputFilePath}",
                 RedirectStandardOutput = true,
                 UseShellExecute = false
             };
