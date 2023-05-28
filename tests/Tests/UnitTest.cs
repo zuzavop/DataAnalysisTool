@@ -2,11 +2,17 @@ using DataAnalysisTool;
 
 namespace Tests
 {
+    /// <summary>
+    /// Represents a unit test class for the DataAnalysisTool.
+    /// </summary>
     [TestClass]
     public class DataAnalysisToolTests
     {
         private DataAnalyzer _dataAnalysisTool;
 
+        /// <summary>
+        /// Initializes the Data Analysis Tool instance before each test.
+        /// </summary>
         [TestInitialize]
         public void TestInitialize()
         {
@@ -51,8 +57,11 @@ namespace Tests
             Assert.IsTrue(output.Contains(expectedOutput));
         }
 
+        /// <summary>
+        /// Tests the ApplyFilters method with the "!=" condition.
+        /// </summary>
         [TestMethod]
-        public void TestApplyFiltersEqual()
+        public void TestApplyFiltersNotEqual()
         {
             string columnName = "Country";
             string condition = "!=";
@@ -69,6 +78,9 @@ namespace Tests
             Assert.IsTrue(output.Contains(expectedOutput));
         }
 
+        /// <summary>
+        /// Tests the ApplyFilters method with the ">=" condition.
+        /// </summary>
         [TestMethod]
         public void TestApplyFiltersGreaterOrEqual()
         {

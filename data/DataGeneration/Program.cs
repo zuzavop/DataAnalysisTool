@@ -1,9 +1,17 @@
 namespace DataGeneration
 {
+    /// <summary>
+    /// Represents a CSV generator for generating CSV files with random data.
+    /// </summary>
     public class CsvGenerator
     {
         private static readonly Random Random = new();
 
+        /// <summary>
+        /// Generates a CSV file with the specified number of rows.
+        /// </summary>
+        /// <param name="filePath">The path to the output CSV file.</param>
+        /// <param name="rowCount">The number of rows to generate.</param>
         public static void GenerateCsvFile(string filePath, int rowCount)
         {
             List<string> lines = new()
@@ -26,6 +34,10 @@ namespace DataGeneration
             File.WriteAllLines(filePath, lines);
         }
 
+        /// <summary>
+        /// Gets a random name from a predefined list of names.
+        /// </summary>
+        /// <returns>A random name.</returns>
         private static string GetRandomName()
         {
             List<string> names = new()
@@ -37,11 +49,19 @@ namespace DataGeneration
             return names[Random.Next(names.Count)];
         }
 
+        /// <summary>
+        /// Gets a random gender ("Male" or "Female").
+        /// </summary>
+        /// <returns>A random gender.</returns>
         private static string GetRandomGender()
         {
             return Random.Next(2) == 0 ? "Male" : "Female";
         }
 
+        /// <summary>
+        /// Gets a random country from a predefined list of countries.
+        /// </summary>
+        /// <returns>A random country.</returns>
         private static string GetRandomCountry()
         {
             List<string> countries = new()
