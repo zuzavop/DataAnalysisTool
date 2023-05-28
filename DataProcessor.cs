@@ -175,8 +175,10 @@ namespace DataAnalysisTool
             {
                 if (row.TryGetNumericValue(columnName1, out double value1) && row.TryGetNumericValue(columnName2, out double value2))
                 {
-                    xData.Add(value1);
-                    yData.Add(value2);
+                    lock(xData)
+                        xData.Add(value1);
+                    lock(yData)
+                        yData.Add(value2);
                 }
             });
 
@@ -205,8 +207,10 @@ namespace DataAnalysisTool
             {
                 if (row.TryGetNumericValue(column1Name, out double value1) && row.TryGetNumericValue(column2Name, out double value2))
                 {
-                    values1.Add(value1);
-                    values2.Add(value2);
+                    lock(values1)
+                        values1.Add(value1);
+                    lock(values2)
+                        values2.Add(value2);
                 }
             });
 
@@ -299,23 +303,24 @@ namespace DataAnalysisTool
         public void FindOutliers(string columnName)
         {
             ControlNumericalColumn(columnName);
-            Dictionary<int, double> outliers = new();
+            ConcurrentDictionary<int, double> outliers = new();
 
             double mean = CalculateMean(columnName);
             double standardDeviation = CalculateStandardDeviation(columnName);
 
-            foreach (DataObject dataObject in _dataset.GetData())
+            Parallel.ForEach(_dataset.GetData(), row =>
             {
-                if (dataObject.TryGetNumericValue(columnName, out double value))
+                if (row.TryGetNumericValue(columnName, out double value))
                 {
                     double zScore = (value - mean) / standardDeviation;
 
                     if (Math.Abs(zScore) > 1)
                     {
-                        outliers.Add(dataObject.Id, value);
+                        outliers.TryAdd(row.Id, value);
                     }
                 }
-            }
+            });
+
             foreach (var o in outliers)
             {
                 Console.WriteLine($"line {o.Key}: {o.Value}");
