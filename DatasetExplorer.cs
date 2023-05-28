@@ -50,13 +50,14 @@
 
             Console.WriteLine($"Analyzing Column: {columnName}");
 
-            int count = CountColumnValues(columnName);
-            Console.WriteLine($"Number of unique values: {count}");
+            var occuration = CountColumnValueOccurrences(columnName);
+            Console.WriteLine($"Number of unique values: {occuration.Count}");
 
-            Console.WriteLine("Value\t\tCount");
-            foreach (var entry in CountColumnValueOccurrences(columnName))
+            Console.WriteLine($"{"Value", -20}Count");
+            foreach (var entry in occuration)
             {
-                Console.WriteLine($"{entry.Key}\t\t{entry.Value}");
+                Console.Write("{0, -20}", entry.Key);
+                Console.WriteLine($"{entry.Value}");
             }
         }
 
@@ -70,23 +71,6 @@
             {
                 return Array.Empty<string>();
             }
-        }
-
-        private int CountColumnValues(string column)
-        {
-            // Count the number of unique values in the specified column
-            HashSet<string> uniqueValues = new();
-
-            string? value;
-            foreach (DataObject dataObject in _dataset.GetData())
-            {
-                if ((value = dataObject.GetColumnValue(column)) != null)
-                {
-                    uniqueValues.Add(value);
-                }
-            }
-
-            return uniqueValues.Count;
         }
 
         private Dictionary<string, int> CountColumnValueOccurrences(string column)

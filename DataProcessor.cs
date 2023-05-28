@@ -314,7 +314,7 @@ namespace DataAnalysisTool
                 {
                     double zScore = (value - mean) / standardDeviation;
 
-                    if (Math.Abs(zScore) > 1)
+                    if (Math.Abs(zScore) > 3)
                     {
                         outliers.TryAdd(row.Id, value);
                     }

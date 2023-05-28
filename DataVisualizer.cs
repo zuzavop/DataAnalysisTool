@@ -50,7 +50,11 @@ namespace DataAnalysisTool
 
         private static void PrintRow(List<string> values)
         {
-            Console.WriteLine(string.Join("\t", values));
+            foreach(var value in values)
+            {
+                Console.Write("{0,10}", value);
+            }
+            Console.WriteLine();
         }
 
         public void CreateAndSaveLinePlot(string outputFilePath, string columnName1, string columnName2)

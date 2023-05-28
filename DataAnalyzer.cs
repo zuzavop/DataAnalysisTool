@@ -154,11 +154,11 @@ namespace DataAnalysisTool
             while (line != "exit")
             {
                 Console.Write(">> ");
-                line = Console.ReadLine()?.ToLower()?.Trim();
+                line = Console.ReadLine()?.Trim();
 
                 if (line != null)
                 {
-                    string command = line.Split(" ")[0];
+                    string command = line.Split(" ")[0].ToLower();
                     if (commands.ContainsKey(command))
                     {
                         string[] args = line.Split(" ")[1..];
